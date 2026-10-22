@@ -6,6 +6,18 @@ contacting hardware, writing console/SD files or executing this experiment.
 Do not use a game, production save, existing console file or previous benchmark
 artifact. Keep a new isolated test output and retain failures/raw readbacks.
 
+## Preparation mission update — still no deployment authorization
+
+The subsequent user mission explicitly authorized preparation and building only.
+That approval produced the minimal probe recorded in
+[Z24S8_GPU_PREPARATION.md](Z24S8_GPU_PREPARATION.md), implementation
+`26bf5fa842d2a498b675fa53ed3455ee1ea1deef`, with a reproducible exact NRO and a
+fresh hardware-approval package. No console was contacted or test executed.
+Read that record for actual readback/barrier/completion contracts, two consecutive
+variable updates per cycle, diagnostics, failed results and the precise approval
+gate. The broader semantic, GOB/1x1, format and adapter-rejection cases below remain
+future work; preparation does not claim them complete or weaken their criteria.
+
 ## Narrow question
 
 On Switch1 Maxwell GM20B, does the experimental single-layer uncompressed Z24S8

@@ -1,0 +1,2407 @@
+{
+  "generated_utc": "2026-10-22T10:34:25.919989+00:00",
+  "research_verdict": "RESEARCH PASS",
+  "prototype_verdict": "PROTOTYPE HOST/BUILD PASS \u2014 CONTROLLED CONTRACT ONLY",
+  "hardware_evidence": "NONE; no hardware contact or execution authorized/performed",
+  "production_or_dawn_acceptance": false,
+  "performance_claim": false,
+  "implementation_commit": "cf53748dd02f007758e1518d8c49610eef117671",
+  "prototype_branch": "research/stencil-z24s8-remap",
+  "baseline_deko3d": "373bfd43d8b2d805fa2eb7d406dbb823032df958",
+  "mesa_nvk": "0ff52079ca9e9e837ed27eb95a8d239f439a1864",
+  "dekotools": {
+    "head": "c15523cea963c04fad77a46f23c3a96d26a86ab9",
+    "status": ""
+  },
+  "container_image_id": "sha256:6611f256a5f9c97ff9b934c7a7c0ec26552aee0fe94d4cd59d849def637e376c",
+  "maxwell_contract": {
+    "class": "0xb0b5",
+    "remap": "0x3006660",
+    "launch": "0x686",
+    "source_components": 1,
+    "destination_components": 4,
+    "component_bytes": 1,
+    "destination_selectors": [
+      "SrcX",
+      "NoWrite",
+      "NoWrite",
+      "NoWrite"
+    ],
+    "remap_method_word": "0x1c2",
+    "remap_method_byte": "0x708",
+    "force_rmw_disable": false,
+    "deko_stencil_byte": 0,
+    "nvk_exact_deko_format_insert_path_supported": false,
+    "destination_x_and_width_units": "remapped elements/texels, not multiplied by four"
+  },
+  "host_tests": {
+    "shared_production_planner_and_encoder": true,
+    "real_adapter_host_execution": false,
+    "reviewed_normal": 24,
+    "reviewed_asan_ubsan": 24,
+    "committed_export_normal": 24,
+    "committed_export_asan_ubsan": 24,
+    "failures_in_those_runs": 0,
+    "earlier_sanitizer_startup_timeout_preserved": true,
+    "sanitizer_startup_repeatability_established": false
+  },
+  "static_proof": {
+    "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/result.json",
+    "bytes": 72442,
+    "sha256": "9805a9dedbefee457960a69f421bf8959d005240908e863a1d7ef6b4ab493c9a"
+  },
+  "committed_library": {
+    "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/libdeko3d-aspect.a",
+    "bytes": 3478728,
+    "sha256": "e32bf92815b72869a4648dcd0d1262e88f7bb3804971040c67d43ea3119bce92"
+  },
+  "baseline_library": {
+    "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/libdeko3d-aspect.a",
+    "bytes": 3384314,
+    "sha256": "6f7f9b21453963c0623ab6a72846ca43e67458731d53ad4c7f849a18aa93cc96"
+  },
+  "existing_objects_identical_after_debug_strip": 26,
+  "legacy_abi_preserved": true,
+  "abi_values": {
+    "baseline": [
+      8,
+      4,
+      8,
+      16,
+      8,
+      48,
+      8,
+      24,
+      128,
+      8,
+      128,
+      8
+    ],
+    "prototype": [
+      8,
+      4,
+      8,
+      16,
+      8,
+      48,
+      8,
+      24,
+      128,
+      8,
+      128,
+      8
+    ]
+  },
+  "independent_review": {
+    "delegation_id": "deleg_a9a1e8d6",
+    "passed": true,
+    "security_concerns": [],
+    "logic_errors": [],
+    "suggestions": [
+      "Document explicitly near source/maxwell/stencil_z24s8.h:2-3 that pinned NVK rejects PIPE_FORMAT_S8_UINT_Z24_UNORM at nvk_cmd_copy.c:490-493. The X mapping is independently supported by format and hardware contracts, not an NVK-exercised path for this exact format.",
+      "Extend tests/stencil_z24s8/StencilZ24S8Tests.cpp with overlap rejection and exactly adjacent ranges, imagePitch exceeding UINT32_MAX, destination address-range overflow, and explicit mipLevelCount > 1 rejection. These branches appear correct but lack direct coverage.",
+      "Before broader acceptance, verify the real entry-point adapter and command-buffer interaction, including unchanged command position on rejected inputs and sequencing with ordinary copies. Current host tests exercise the shared planner/encoder, not source/dk_image_stencil.cpp."
+    ],
+    "summary": "Read-only review completed for all five new files against deko3d base 373bfd43d8b2d805fa2eb7d406dbb823032df958 and Mesa pin 0ff52079ca9e9e837ed27eb95a8d239f439a1864. No material source-level defect found within the declared narrow contract. Format traits, TIC swizzling, numeric Z-target values, Mesa format tables and packed-format tests consistently place stencil in byte0/X; W would target depth. The B0B5 contracts support NoWrite=6, remap 0x03006660 and launch 0x686 with FORCE_RMW_DISABLE clear. Destination width/origin use remapped element units, not multiplied-by-four byte units. Packet register spans, address high/low ordering, setup-before-launch ordering and reservation match existing command helpers. Bounds subtraction, uint64_t pitch/span arithmetic, allocation checks and guarded range additions avoid overflow; final source-row padding is correctly unnecessary. Validation precedes command emission. Remap state is explicitly programmed, and ordinary copies disable or replace it. Ownership, virtual-address aliasing, cache maintenance and inter-engine synchronization remain explicit caller obligations. Existing public header/copy implementation are unchanged. Reviewed existing logs confirm 19 normal and 19 sanitized host cases passed; no builds or tests were run during this review, and no files were modified.",
+    "acceptance": "PASS only as an isolated, controlled source/command-encoding prototype. NVK's rejection of this exact packed format does not invalidate the source-derived X mapping, but prevents claiming an existing NVK execution precedent. GM20B NoWrite/RMW behavior, block-linear execution and actual depth preservation remain unverified. This verdict does not establish full-library build success, production readiness or a finalized/published API, and does not authorize hardware use."
+  },
+  "independent_nvk_analysis": {
+    "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/nvk-analysis.json",
+    "bytes": 3085,
+    "sha256": "8607ff81281187698438abb6e92b664665b225866fe2debdef2ed9f6a32da0d2"
+  },
+  "review_suggestions_resolved": [
+    "Document NVK exact-format rejection",
+    "Add overlap/adjacency, pitch overflow, destination range and view mip-count tests"
+  ],
+  "review_suggestion_before_broader_acceptance": "Exercise real adapter command positions and ordinary-copy alternation; requires separately scoped execution",
+  "committed_source_replay": {
+    "commit": "cf53748dd02f007758e1518d8c49610eef117671",
+    "base": "373bfd43d8b2d805fa2eb7d406dbb823032df958",
+    "tree": "ad4daa3ca51c58372836fd502e07865857599c5e",
+    "tracked_export_file_count": 79,
+    "archive_sha256": "dec7a9781bb5356fd36deee0d865ae053b0f8ee6c3da523182b86943f40b4519",
+    "patch_sha256": "9c8b9f5327218279ee8eae8c0e814e58bd5af913d7f89c2968289561de244a2c",
+    "patch_replay_exact": true
+  },
+  "protected_repositories_unchanged": {
+    "dependencies/deko3d": {
+      "head": "373bfd43d8b2d805fa2eb7d406dbb823032df958",
+      "status": "",
+      "dirty_file_hashes": {},
+      "all_comparison_fields_equal": true
+    },
+    "dependencies/mesa-switch-upstream": {
+      "head": "0ff52079ca9e9e837ed27eb95a8d239f439a1864",
+      "status": "",
+      "dirty_file_hashes": {},
+      "all_comparison_fields_equal": true
+    },
+    "dependencies/dawn-deko3d-immediates": {
+      "head": "ef84858ddcc7a9b8aa7e283ed587fb383b476f2b",
+      "status": " M src/dawn/native/deko3d/CommandBufferDeko3d.cpp\n M src/dawn/native/deko3d/DeviceDeko3d.cpp\n M src/dawn/native/deko3d/DeviceDeko3d.h\n M src/dawn/native/deko3d/QueueDeko3d.cpp\n?? src/dawn/tests/unittests/native/deko3d_texture_upload/APIValidationHook.cmake\n?? src/dawn/tests/unittests/native/deko3d_texture_upload/CMakeLists.txt\n?? src/dawn/tests/unittests/native/deko3d_texture_upload/ExtractProduction.py\n?? src/dawn/tests/unittests/native/deko3d_texture_upload/README.md\n?? src/dawn/tests/unittests/native/deko3d_texture_upload/TextureLayoutAPIValidation.cpp\n?? src/dawn/tests/unittests/native/deko3d_texture_upload/TextureUploadTestSupport.h\n?? src/dawn/tests/unittests/native/deko3d_texture_upload/TextureUploadTests.cpp\n",
+      "dirty_file_hashes": {
+        "src/dawn/tests/unittests/native/deko3d_texture_upload/APIValidationHook.cmake": "db70e901c5d24a383ae2a61f350db8c3eadda4636f7be665b6ba1cb6984ac5c6",
+        "src/dawn/tests/unittests/native/deko3d_texture_upload/CMakeLists.txt": "c4fadcc7b6b069d8d9d7862fa38b23807c3bcf79452688e08d40f242b7826282",
+        "src/dawn/tests/unittests/native/deko3d_texture_upload/ExtractProduction.py": "26c536d3a8909ffd388be8ab7f79aa63b0a56f1e9b575b3d845310da672b9c67",
+        "src/dawn/tests/unittests/native/deko3d_texture_upload/README.md": "46814fdf9f1d097a428fcc54b00e4b95f4ce1e2c58bdb85e8bfb54289f46edee",
+        "src/dawn/tests/unittests/native/deko3d_texture_upload/TextureLayoutAPIValidation.cpp": "7bb5c243cd0f009a469a6a20ff9f8386edd0cc278816a85fe9a9fc465a0bab0d",
+        "src/dawn/tests/unittests/native/deko3d_texture_upload/TextureUploadTestSupport.h": "7b7de3023578bb1165fdb1cc852fe5806ed76a58776a1f87001d230b02c96004",
+        "src/dawn/tests/unittests/native/deko3d_texture_upload/TextureUploadTests.cpp": "3a7d8a7da3d657e55a104c0528b0905dc4380c45711897b85cb5255bc29e9b02",
+        "src/dawn/native/deko3d/CommandBufferDeko3d.cpp": "f39aee1c3dbd843d32d68f3938c346b47234b2881ae00f9ff318a6b8ea8c2e19",
+        "src/dawn/native/deko3d/DeviceDeko3d.cpp": "5e1d5dd11e24a75ae920140b6cd600ee8be8d8f86ec51368aa4f26f01c9e2b11",
+        "src/dawn/native/deko3d/DeviceDeko3d.h": "2a6489f0e76701d72b830fb11ec2ca1ced2b99efb0370337567a91b177062b60",
+        "src/dawn/native/deko3d/QueueDeko3d.cpp": "38d00c00f6e03b6d8fc74a4aa61abb56eab6793d10889987b3d45b4cde80de23"
+      },
+      "all_comparison_fields_equal": true
+    },
+    "dependencies/uam-immediates": {
+      "head": "308967741b4397750e105753db1bb15b667c08fb",
+      "status": "",
+      "dirty_file_hashes": {},
+      "all_comparison_fields_equal": true
+    },
+    "dusklight": {
+      "head": "6c242edc38b741ab462d3086a954b01fa61b1220",
+      "status": " M docs/switch/STATUS.md\n M docs/switch/artifact.json\n M docs/switch/evidence/log-manifest.json\n?? docs/switch/evidence/nvk-hardware-20261021T013051Z-deployment-intent.json\n?? docs/switch/evidence/nvk-hardware-20261021T013051Z-nxlink-transfer-receipt.json\n?? docs/switch/evidence/nvk-hardware-20261021T013051Z-nxlink-transfer.log\n?? docs/switch/evidence/nvk-hardware-20261021T013051Z-observation-01-ui-pipeline-dialog.json\n?? docs/switch/evidence/nvk-hardware-20261021T013051Z-observation-02-pipeline-build-finished.json\n?? docs/switch/evidence/nvk-hardware-20261021T013051Z-observation-03-gameplay-smoke-pass.json\n?? docs/switch/evidence/nvk-hardware-20261021T013051Z-observation-04-repeat-launch-pipelines.json\n",
+      "dirty_file_hashes": {
+        "docs/switch/evidence/nvk-hardware-20261021T013051Z-deployment-intent.json": "9426b3824e26c0583b7f47350eaee9a4b84fdb19d6efcde2c05f61e20a982675",
+        "docs/switch/evidence/nvk-hardware-20261021T013051Z-nxlink-transfer-receipt.json": "cc44c1820b80ec7e9c6b197dbe2dd373f19abbd17dcecd7a69a39461549bddfb",
+        "docs/switch/evidence/nvk-hardware-20261021T013051Z-nxlink-transfer.log": "2f02862ae3aebd47e45fdb9055cb88d4d74bc9ec2e96fee6c57d5536b18cc253",
+        "docs/switch/evidence/nvk-hardware-20261021T013051Z-observation-01-ui-pipeline-dialog.json": "aab2e4b71066b092cc92c3b86ffae0d802b2f1ab1a3beb61d644048311f7ef24",
+        "docs/switch/evidence/nvk-hardware-20261021T013051Z-observation-02-pipeline-build-finished.json": "f8eb6d154f66ed6a77af786f0827c2a768461f338157cd100507bab0d4d052d6",
+        "docs/switch/evidence/nvk-hardware-20261021T013051Z-observation-03-gameplay-smoke-pass.json": "39698dc88d9489ad7a687e717c9ce511093bd978240d68bdfc7c5f281d7c85fe",
+        "docs/switch/evidence/nvk-hardware-20261021T013051Z-observation-04-repeat-launch-pipelines.json": "8375b012aadf66bf2071a8c0c64872759c7fd16fadbbdcbaa790232feedd9167",
+        "docs/switch/STATUS.md": "0f7782c39a3f20cfd26d364699e6f866a8fc16a8655c34e127b780e680c48572",
+        "docs/switch/artifact.json": "0f8be8da29b08105dd7822d80f89cde9d9a74c7d9323647666a6bc173a946ce1",
+        "docs/switch/evidence/log-manifest.json": "9181dc64167607702beda55412e9d8ce0c89b529f6921d42134190e0b412be60"
+      },
+      "all_comparison_fields_equal": true
+    },
+    "nvk-reference": {
+      "head": "2258b9a194d8477442ede0723b1f04ebdf09c6a3",
+      "status": "",
+      "dirty_file_hashes": {},
+      "all_comparison_fields_equal": true
+    },
+    "performance-monitor": {
+      "head": "c7118b0065fac739cffb151142e7eebdc1d9ed04",
+      "status": " M docs/switch/PERFORMANCE_MONITOR.md\n?? docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-benchmark-01-analysis.json\n?? docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-benchmark-01-results.csv\n?? docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-benchmark-01-retrieval-receipt.json\n?? docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-deployment-intent.json\n?? docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-nxlink-transfer-receipt.json\n?? docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-nxlink-transfer.log\n?? docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-observation-01-startup-running.json\n?? docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-observation-02-detailed-panel-working.json\n?? docs/switch/evidence/performance-monitor-hardware-log-manifest.json\n",
+      "dirty_file_hashes": {
+        "docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-benchmark-01-analysis.json": "81a22acd04bf2af068662659234e19f8b354ae37f118f255c68d023e5d8f6d51",
+        "docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-benchmark-01-results.csv": "62c6129b1f3276e3a4e44c68d7e3ac598875820c3d489564f11a5c40960faa20",
+        "docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-benchmark-01-retrieval-receipt.json": "76dc8fb855b41be7b482ac87182de9f638583ec194a6d49fd0810dee826da6dd",
+        "docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-deployment-intent.json": "334a965bb6220f1775b20a0cc29a7aa3ecdba3dea3a8086ee8e9a96bc1d3c2c9",
+        "docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-nxlink-transfer-receipt.json": "3ef4ea76fe492d47479d1d7a1ea12eb1ef14c204d28c4b8ce7a15f44375f950a",
+        "docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-nxlink-transfer.log": "e5a5935148c166ab0f2e1adf7a4d07b251d9338887467836c012891818b17ba4",
+        "docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-observation-01-startup-running.json": "a6e1abedfd91c23a3841cfdb412cde2c3d0e0ad6384876ce3f046a48ead7bd1f",
+        "docs/switch/evidence/performance-monitor-hardware-20261021T204526Z-observation-02-detailed-panel-working.json": "bc691a09e1a54732097e58538369209bbe075f239a1a16ad4f202001412df1d8",
+        "docs/switch/evidence/performance-monitor-hardware-log-manifest.json": "13f2e59a3fae7d26581dfedc45e28f0ff5370a6bdef3aa4ef6c9df48d9b809a0",
+        "docs/switch/PERFORMANCE_MONITOR.md": "dee7342befdea70cd0c10d9e398bff578553323a35134311bacbf039e296e14e"
+      },
+      "all_comparison_fields_equal": true
+    },
+    "set-immediates": {
+      "head": "3198320caa3f230d1fc359df30da87166137315d",
+      "status": "",
+      "dirty_file_hashes": {},
+      "all_comparison_fields_equal": true
+    }
+  },
+  "protected_artifacts_verified": [
+    {
+      "path": "/home/gro/dusklight-deko3d/snapshots/nvk-reference-00b7271-shallow/build/switch-nvk-upstream-0ff5207-release/platforms/switch/dusklight.nro",
+      "bytes": 60670854,
+      "sha256": "c1758fd9d5d66c98eb211b9f4b0c0814aea9d826eb956a5ea3cb9d9d83e2611d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/performance-monitor/build/performance-monitor-delivery/dusklight-performance-monitor-5080a855f2be-d9171fdb.nro",
+      "bytes": 60978262,
+      "sha256": "4921a90236d0100a326aff17ac07431a07c3d05e6738dfabd70ce5b78811e455"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/hardware/performance-monitor-20261021T204526Z/benchmark-01/results.csv",
+      "bytes": 74598,
+      "sha256": "62c6129b1f3276e3a4e44c68d7e3ac598875820c3d489564f11a5c40960faa20"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/set-immediates/build/webgpu-uam-link-switch/deko3d_queue_backend_link.elf",
+      "bytes": 15205840,
+      "sha256": "73fe3d79a462c563e3b705ee2076c7981e270791889112f00375132446710fda"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/set-immediates/build/texture-layout-switch/deko3d_queue_backend_link.elf",
+      "bytes": 15205864,
+      "sha256": "dffa95bf6fb559339b55b24247c976356bb791a9235fb4daf45e29a949b85a7c"
+    }
+  ],
+  "source_references": {
+    "/home/gro/dusklight-deko3d/dependencies/deko3d": {
+      "head": "373bfd43d8b2d805fa2eb7d406dbb823032df958",
+      "files": [
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/LICENSE",
+          "bytes": 853,
+          "sha256": "a0b4cee8af79009481c8dd619bf51c1c909f92893b44c51e0b6dfb27fb7edd83"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/Makefile",
+          "bytes": 6510,
+          "sha256": "8dc95830eeae475dd02c5061f7b212123dda00e1b26c8d5aa3c3cc12e6a82486"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/include/deko3d.h",
+          "bytes": 45047,
+          "sha256": "623b3d7ec25bd82bc08492edaf86d74bd5b27361307af3469758f8ec5973ef6a"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/source/dk_image.cpp",
+          "bytes": 33954,
+          "sha256": "6188b483e961a96a2c6e0d4fb70179b2f03d38f5e577aa0140a4353b201a6c6e"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/source/dk_image.h",
+          "bytes": 2531,
+          "sha256": "6c788ac8a60576b1bafc22b8dade80399349d4f7032c5263836c3dca874d3934"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/source/maxwell/gpu_transfer.cpp",
+          "bytes": 7477,
+          "sha256": "ca0029fae775068370f7fd11b1ace53e4acc5d9583f8fb1d7cea396f8bc32269"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/source/maxwell/gpu_base.cpp",
+          "bytes": 4922,
+          "sha256": "cd9e36367d97a0c439ae002c1bc1365750e3742ac70c5f994fa30adfbd5efdd1"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/source/maxwell/engine_copy.def",
+          "bytes": 2425,
+          "sha256": "1f0feb2547ac69db77029ba0472b32234f43919ba111d5500ef290f830d5aced"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/source/maxwell/format_traits.inc",
+          "bytes": 17554,
+          "sha256": "20c7bb72b82542a45c60827c523b165ae0512b8430d4e18f9332b3b2c87f399b"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/source/maxwell/image_formats.h",
+          "bytes": 8131,
+          "sha256": "2124cf0b7ce6f7d76a119fd367f471731aaeea8e4bdd39d516017e45e98de06c"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/source/maxwell/image_formats.cpp",
+          "bytes": 5003,
+          "sha256": "ab3138e9fc15fe09b80a4176c7cfb8a568e91c2d018193d4f52ac1ab399addad"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/deko3d/source/maxwell/tic_generate.cpp",
+          "bytes": 6227,
+          "sha256": "b4957efad0b27afaab217147660ec2475094fa22d6a1a0b761ec08c188a521ab"
+        }
+      ]
+    },
+    "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream": {
+      "head": "0ff52079ca9e9e837ed27eb95a8d239f439a1864",
+      "files": [
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream/src/nouveau/vulkan/nvk_cmd_copy.c",
+          "bytes": 41072,
+          "sha256": "702eec87ae71fe3caeeeaf305f18356f9b395c523097c5f280b25bf2a4af73b6"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream/src/nouveau/nil/nil_formats.csv",
+          "bytes": 23662,
+          "sha256": "79d396f12ce0d2b8836a158d2947a534af759c09b281a63fea52f8729dc621fc"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream/src/nouveau/nil/image.rs",
+          "bytes": 34214,
+          "sha256": "bc878d11e8b4c939527c2ac254e9142ec8df662ded758d92a836ada0119d60aa"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream/src/util/format/u_format.yaml",
+          "bytes": 80486,
+          "sha256": "f0fef33544456468def10d5dffc72a61e8b0e7acc599b700fc65366e6f495a10"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream/src/util/format/u_format_tests.c",
+          "bytes": 106078,
+          "sha256": "f721257e79a8cd613d65cb401b3e2a3b0e0ad01f93973fb2bbc32545a57d85d6"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream/src/nouveau/headers/nvidia/classes/clb0b5.h",
+          "bytes": 21632,
+          "sha256": "169d958bfa379bfdf24c4656f02265ff5bcf22a2866724ee4299138d29df5332"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream/src/nouveau/headers/nvidia/classes/clb197.h",
+          "bytes": 404915,
+          "sha256": "175c50f29798b39c6858cafe31497e9e9798c70ca068a64856719003b5d088d7"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream/src/nouveau/headers/nvidia/classes/clb197tex.h",
+          "bytes": 153880,
+          "sha256": "d5aad7d7f339e09411b40a5e8b996613ae2c6d802187070bfa66a596513151bf"
+        },
+        {
+          "path": "/home/gro/dusklight-deko3d/dependencies/mesa-switch-upstream/src/nouveau/horizon/nouveau_horizon_device.c",
+          "bytes": 22443,
+          "sha256": "2ceda2a55c2ff7b9a1e8aa4dc877767e042eddf1b1c29be16d0a86705251a1e5"
+        }
+      ]
+    }
+  },
+  "future_gpu_fixture": {
+    "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/future-gpu-fixture/fixture.json",
+    "bytes": 1253,
+    "sha256": "83aa944fae9dc20548b573f8aeea5776763d5943e478b58d7c06850a8b1aff3c"
+  },
+  "future_hardware_test_authorized": false,
+  "source_files": [
+    "include/deko3d_aspect_copy.h",
+    "source/dk_image_stencil.cpp",
+    "source/maxwell/stencil_z24s8.h",
+    "tests/stencil_z24s8/CMakeLists.txt",
+    "tests/stencil_z24s8/StencilZ24S8Tests.cpp"
+  ],
+  "source_file_receipts": [
+    {
+      "path": "/home/gro/dusklight-deko3d/dependencies/deko3d-aspect-copy/include/deko3d_aspect_copy.h",
+      "bytes": 1722,
+      "sha256": "5aeb52510cf07def2798db913fea572e4fa9845a357e88dcbf47ce4debb1a489"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/dependencies/deko3d-aspect-copy/source/dk_image_stencil.cpp",
+      "bytes": 1310,
+      "sha256": "f03bc66220dfd9add0d117a034fca95fc4a430bc85e6f30d1c710418b3511a77"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/dependencies/deko3d-aspect-copy/source/maxwell/stencil_z24s8.h",
+      "bytes": 5235,
+      "sha256": "739e262f8ad8dbad996f25aaaeaea1a3654b8b2246e6dfd41f07b22f64aa45ba"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/dependencies/deko3d-aspect-copy/tests/stencil_z24s8/CMakeLists.txt",
+      "bytes": 1343,
+      "sha256": "441f3e7742ad5dd2dcd47abeca5bf8cbbf01d53a81ac51ae7ad5185255797a63"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/dependencies/deko3d-aspect-copy/tests/stencil_z24s8/StencilZ24S8Tests.cpp",
+      "bytes": 11964,
+      "sha256": "8db27834eba24900d3a8328ce668d7b08d0894bd8175c3cc53c24fa84fbf3516"
+    }
+  ],
+  "raw_receipt_count": 398,
+  "raw_receipts": [
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/cmd_bind_common.d",
+      "bytes": 22192,
+      "sha256": "320ecc7c16956b8fa804be6fec951aa8dd0f3ba25c78c432ef5a887512734446"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/codesegmgr.d",
+      "bytes": 20422,
+      "sha256": "c07c00ba3cbe21a995994967fee3005e31a862b1babead43ce1c0f43333603d6"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/dk_cmdbuf.d",
+      "bytes": 20860,
+      "sha256": "1b77272eb4ccdd0cc5b518abee3c4732f9ddbdf8322d5fe0ea6f37fae28c27bc"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/dk_device.d",
+      "bytes": 20420,
+      "sha256": "4aacb88a62316c6f3f5a4096a7dc66c16c93000f5c052553324630899c728069"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/dk_fence.d",
+      "bytes": 20552,
+      "sha256": "5b1796fb1854fac01958a7e2c4d3e7eb5743984c17625088e6c08a311d1e990d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/dk_image.d",
+      "bytes": 21790,
+      "sha256": "dde731f80de66a3e3351d814a35317cff30b57082a074d168889a710a202cf60"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/dk_memblock.d",
+      "bytes": 20424,
+      "sha256": "8c900860aa995a9e2c5ff8a298ff7cceb1f22d342c308e0128945c45961903ca"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/dk_queue.d",
+      "bytes": 22496,
+      "sha256": "8b3b911bd56cb53eb29bc4cf8d796e2500f85f31c7e8320466161c8e7b4bdf32"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/dk_shader.d",
+      "bytes": 20682,
+      "sha256": "8862d6b6660a810c8f11987d1340a3fe219318676717f90dfbc535329bf1e823"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/dk_swapchain.d",
+      "bytes": 21828,
+      "sha256": "0013e1a2061011ebbba7dec94eab805fd0bed2101789f6ad6a560fc8959362ee"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/dk_variable.d",
+      "bytes": 21376,
+      "sha256": "49872bf032a353ade1456cd0267496854bad118d73126ae2b612270bfbe9b69c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_3d_base.d",
+      "bytes": 23038,
+      "sha256": "607a012dee6b619326ed7134542476c005da1b3bda067432beab03247143db97"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_3d_ibo.d",
+      "bytes": 21524,
+      "sha256": "56f62908c4bfc563a32eeee3910132447e08e9d22251a2537b251a5bf2de194c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_3d_ms.d",
+      "bytes": 22224,
+      "sha256": "24a801971cbd3c4d71060a882c5517011ce0e1c9c59696024ab8109e58255a2d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_3d_state.d",
+      "bytes": 21712,
+      "sha256": "3bd8247f5ceb7778d79adbebecb4eb59f205441f7aa3c2e97e47a972fc8270c9"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_3d_vbo.d",
+      "bytes": 21524,
+      "sha256": "1fe4e409a7eefac02f57679724c06bf430e45650e642fbc691435a1552a14bc1"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_3d_zcull.d",
+      "bytes": 20682,
+      "sha256": "aa470d3f55aaa5a53f046371e54cf92e6e3d6e42ad904595d63f750ff2cc755c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_base.d",
+      "bytes": 22958,
+      "sha256": "ae274fa447e79d82594283086cab03a63ada88e6f61ab94e2199fcb0cb6cfe68"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_compute.d",
+      "bytes": 22682,
+      "sha256": "789ff615a9186a3c3ee88c8df612a3c64ea29be5a3b4af95a29b6df1a2878412"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_error.d",
+      "bytes": 21386,
+      "sha256": "981912197b0dffa1c51e26e8931fbaf04298dad83749079c30d8f5a9086ff5b0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/gpu_transfer.d",
+      "bytes": 23056,
+      "sha256": "1fb409ad36c2394efa17fc2ba70c4f33efca901437edf39b802dc88df77ce13b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/image_formats.d",
+      "bytes": 20208,
+      "sha256": "02b0b4de1b3b04348d66bd8c8499457ff40e5455d57fcb6f202228f5d1765441"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/libdeko3d-aspect.a",
+      "bytes": 3384314,
+      "sha256": "6f7f9b21453963c0623ab6a72846ca43e67458731d53ad4c7f849a18aa93cc96"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/queue_compute.d",
+      "bytes": 21860,
+      "sha256": "42d5108d9cde502e3054270c7f5074b1fddb44f22c0156a9889811087dcb351b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/queue_workbuf.d",
+      "bytes": 20876,
+      "sha256": "e6fcaac968d61bf282e587c2565090c92d2da92988e3205335650ce76746837d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/tic_generate.d",
+      "bytes": 20768,
+      "sha256": "52879adf3933ffc2f040cda9fe00efe143fc381648e410cf6dc9de195fa7e690"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-baseline-complete/tsc_generate.d",
+      "bytes": 20438,
+      "sha256": "4ad3ea8ad2159dc84b5473ea04e89041e2b816fa165c7e976bf4879af5ae2ba3"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/cmd_bind_common.d",
+      "bytes": 22811,
+      "sha256": "28493f7d913ce09d79a33f19dfccd070a0aaa96e1f58984cb9cd82fb9ef73503"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/codesegmgr.d",
+      "bytes": 20653,
+      "sha256": "4c3b5943e09b2d6313a6e8b220bccb8d797535de64e88ac7f3037bcce226cb59"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_cmdbuf.d",
+      "bytes": 21217,
+      "sha256": "21a9edd342d8354e7d2c0798c417e6e67f606222e85cf7880f25d26475e0f8c0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_device.d",
+      "bytes": 20651,
+      "sha256": "bfc621c0d5641d3734848ab3f860fc44141630419c0bb33c46453821dec1b7a8"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_fence.d",
+      "bytes": 20825,
+      "sha256": "d3f9fe209170b0128256e2dfb95a90850db8a3a6bddd788443841b061e51bcd5"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_image.d",
+      "bytes": 22283,
+      "sha256": "d7933be3577d207a2d12e2a9c8a1e8190eb40e477030f5778a59a72d1c9b6b67"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_image_stencil.d",
+      "bytes": 22179,
+      "sha256": "6252d3f7cfb3ff63706a3424468aefd190db5883e215364b70b756d1c18cca16"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_memblock.d",
+      "bytes": 20655,
+      "sha256": "b15e31a649aa20900e910e85d9bb70922dc493a44f3e188cb6b3fc9af9fed76f"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_queue.d",
+      "bytes": 23199,
+      "sha256": "40ff1389015f3668314a2681c645667195cdbdd3a78c5677a38dd7ec9e11f2d2"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_shader.d",
+      "bytes": 20997,
+      "sha256": "edce877cd9c43112d2fa5633df990832d9aea1ad2a49ee368b51f4d4f1454f85"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_swapchain.d",
+      "bytes": 22479,
+      "sha256": "0d164f4d5305ec93f8ffb66d05fee8ffc869df818b4a070d63a85a009353caca"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/dk_variable.d",
+      "bytes": 21743,
+      "sha256": "c1a80f441c99a3f80ad14221401e1e77c4949eaea30055213a38b6277a720c9e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_3d_base.d",
+      "bytes": 23783,
+      "sha256": "b52cc3892a67bf746324e41940fadca70e28f437366a53c479e8fa32147c96ce"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_3d_ibo.d",
+      "bytes": 21949,
+      "sha256": "52df2d5682f62f5e3cc6b4b2d73147e51260bb75916fdfa7adc6fb124ae17c2a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_3d_ms.d",
+      "bytes": 22759,
+      "sha256": "a14e883f32e276fd4eb54296276b5368faf3b2c2dd4bfdf1af432e78b2f67e69"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_3d_state.d",
+      "bytes": 22121,
+      "sha256": "4ede1598657c3e9d36ebeb61ed68853385eaf36c3aa2dc41ea4d6478cf9436ee"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_3d_vbo.d",
+      "bytes": 21949,
+      "sha256": "ec8bae3f8774c26891e56ef6fd7a22d24d89bdf41b0444b07c1008d26b2229c1"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_3d_zcull.d",
+      "bytes": 20955,
+      "sha256": "022cde2cf537be908dd373f0ea082046af5b9e3e9e0580dfe460a4ed579cb26c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_base.d",
+      "bytes": 23371,
+      "sha256": "34a900abe1a892828f918baaa4baa3dea44e7a36a6a35b852d808b3dada8368b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_compute.d",
+      "bytes": 23401,
+      "sha256": "20a0456fe5a97ec966ee82b56bc4b8d9d7146f6441c06c99710df0bdf6aa5dc6"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_error.d",
+      "bytes": 21911,
+      "sha256": "57e2d8708b19011ad9a969057ed3a1d780502aa309a2b2af4c613354a8caeedc"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/gpu_transfer.d",
+      "bytes": 23685,
+      "sha256": "502a89edd54e4ed541fd4d93aa5578367b281f68afdf11864b0f2bec9c09fbf7"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/image_formats.d",
+      "bytes": 20355,
+      "sha256": "1ee71a2d7db04c914d62622a5ace416fbcf0e6537e2405cc531e9c1be17c25cf"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/libdeko3d-aspect.a",
+      "bytes": 3478728,
+      "sha256": "e32bf92815b72869a4648dcd0d1262e88f7bb3804971040c67d43ea3119bce92"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/queue_compute.d",
+      "bytes": 22511,
+      "sha256": "b4017becd4711e36a8b1d16fbd6ce3e5afb1a881d78782411e32c5efa0d960cc"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/queue_workbuf.d",
+      "bytes": 21233,
+      "sha256": "55a3fc80b6f5ab7525ce86b9de6999c2a6a9d681723b04312d30faa10774ff40"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/tic_generate.d",
+      "bytes": 21041,
+      "sha256": "5c94d72957f8ce9d35f23ab7d9f7e4198a53f22491818fe42fb0cb82275cf008"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-committed/tsc_generate.d",
+      "bytes": 20627,
+      "sha256": "89e80e8f5b0d241656a5ad75b4874dfa42a13ebca3ff8bbb80bea5c964e1cd0b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/cmd_bind_common.d",
+      "bytes": 22556,
+      "sha256": "0b2d876af3204529903702eb4a8a4f4ea3b54a0150dbe0e93a9ab62a64eb7f8f"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/codesegmgr.d",
+      "bytes": 20554,
+      "sha256": "d07e4a9a34bf8a73f6f5a779e6a474d49f09327552896923bb3eb3ad09ea458c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_cmdbuf.d",
+      "bytes": 21064,
+      "sha256": "69dedc9f9ed3c7a3f3abc8e70d42ac00ac4280e9ed3b6cb02923da7979f39215"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_device.d",
+      "bytes": 20552,
+      "sha256": "acf95c4ffda3bc247d583ae4128c266bd76238528eb44141dd765dbeb9a7b351"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_fence.d",
+      "bytes": 20708,
+      "sha256": "3c78d680536c9bdfad926f2b0fd9d065c7918370250b1ef42af6daef94f56fee"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_image.d",
+      "bytes": 22082,
+      "sha256": "d1b698e1453ab80ad6c26e8e5df6fb900b9d1d151614acd48c81cf564d0175c3"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_image_stencil.d",
+      "bytes": 21966,
+      "sha256": "cac17dd4dfab486cd15bd60d2cde65c3bd6b5cffb43abb147e19b46a5aab21cc"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_memblock.d",
+      "bytes": 20556,
+      "sha256": "ba34fd91a277f498cd975f01df4e001d5a393593988da1154971b76510ed1aca"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_queue.d",
+      "bytes": 22908,
+      "sha256": "4f925e8f84538274e909fb524085d0c7ad1bfea9d05aab6881db894df0456eeb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_shader.d",
+      "bytes": 20862,
+      "sha256": "cd8ec22bbd3c746b5bec6998d85be7b0919f976eba6309c69df4f311f9f17b43"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_swapchain.d",
+      "bytes": 22200,
+      "sha256": "4bacddc586e05e99b1ab46fb5aafba914c697c5c443c6998a8aa3104797c87e3"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/dk_variable.d",
+      "bytes": 21596,
+      "sha256": "44a818b2eee4bfe5d4768f0afa084b4537dd23a06ae0ca89c07998b21f0ccbbb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_3d_base.d",
+      "bytes": 23474,
+      "sha256": "ddd2e45bc770a10c1215eb448c12413ef60ba4a0ddeff4ee9fe083e9abd4c702"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_3d_ibo.d",
+      "bytes": 21772,
+      "sha256": "cc3365b8b3c7af907de7de55a610ac40e229cbf7ae8a14f92846866588b2a89e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_3d_ms.d",
+      "bytes": 22540,
+      "sha256": "c87e7a7cce230773ade7498d3f898830aabdfaea3c9334792588078f09650ffe"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_3d_state.d",
+      "bytes": 21956,
+      "sha256": "e57f08269aba8c92cfff9e8456aa72b57d23ec7d1a070bcdf0a3550b395cc23c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_3d_vbo.d",
+      "bytes": 21772,
+      "sha256": "4f97922476c530b7ba131185faf67e94f40aa297f7bac58fd562984ba653f1ed"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_3d_zcull.d",
+      "bytes": 20838,
+      "sha256": "7a9a997ae5e0239f586390ca744fbc0a23ed37b16fff21f72c625256fdf147ba"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_base.d",
+      "bytes": 23230,
+      "sha256": "f1ae27dec96d9ef165507ac9a5373df4b3bebd186a6d730f45d3e87d56e0110b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_compute.d",
+      "bytes": 23098,
+      "sha256": "0593352257bcbc23beb87d8889b23de3e0cc4fd71e5d93c5769cd57bafa1e210"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_error.d",
+      "bytes": 21686,
+      "sha256": "feabcbf7855cd05b8c72cddbcd07581c6d60dfe1178a21a7c97b41ebbcce1f2d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/gpu_transfer.d",
+      "bytes": 23436,
+      "sha256": "1849a4af9d7dc17c3bbacbd5280d60bbe601a2d1c4c9113c1b4a04ff81e7155c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/image_formats.d",
+      "bytes": 20292,
+      "sha256": "09525e9bf53a8b0690b9954d6f444890514194273bd9f1065b97a7ee8f99baba"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/libdeko3d-aspect.a",
+      "bytes": 3478064,
+      "sha256": "127d95f69a8bad968055cdf027d2bb2402144ac0bc82a9a64aed5ffd8ff0903c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/queue_compute.d",
+      "bytes": 22232,
+      "sha256": "b633a08da80b665173183ef12d3a42b7f74f69206cc0e1330b9b6538e08b4c62"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/queue_workbuf.d",
+      "bytes": 21080,
+      "sha256": "1a85dab18b41018190f603eeb43b7ce6178ee13daa2b04505b0cba5f5433db8c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/tic_generate.d",
+      "bytes": 20924,
+      "sha256": "fe5d2b07374d128676d9ff35e1a4374c06c2bf68a231d077d64c9a31a00fbf85"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-prototype-final/tsc_generate.d",
+      "bytes": 20546,
+      "sha256": "de371cffe28461cfc5ce9152ca65cf882f4e1d11b81ca896ca8bf6d603509af1"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/cmd_bind_common.d",
+      "bytes": 22528,
+      "sha256": "d2e792bb91addf2a16ba10bf4e1af99f08cb4e1abb6f17d7e67faaddcf1fa37e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/codesegmgr.d",
+      "bytes": 20554,
+      "sha256": "d07e4a9a34bf8a73f6f5a779e6a474d49f09327552896923bb3eb3ad09ea458c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_cmdbuf.d",
+      "bytes": 21064,
+      "sha256": "69dedc9f9ed3c7a3f3abc8e70d42ac00ac4280e9ed3b6cb02923da7979f39215"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_device.d",
+      "bytes": 20552,
+      "sha256": "acf95c4ffda3bc247d583ae4128c266bd76238528eb44141dd765dbeb9a7b351"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_fence.d",
+      "bytes": 20708,
+      "sha256": "3c78d680536c9bdfad926f2b0fd9d065c7918370250b1ef42af6daef94f56fee"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_image.d",
+      "bytes": 22054,
+      "sha256": "0cfc412e0afaf7ec247874c11f4f4b1525b339ea25c661c9f2be9fe9be4babe5"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_image_stencil.d",
+      "bytes": 21952,
+      "sha256": "1e13584b813a5715ba546cbb66d129048a7ea92970c8a861ea12ea9c0cd16c86"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_memblock.d",
+      "bytes": 20556,
+      "sha256": "ba34fd91a277f498cd975f01df4e001d5a393593988da1154971b76510ed1aca"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_queue.d",
+      "bytes": 22880,
+      "sha256": "91ee76ba9ef7c9f46a18b835fa6e26535e0a8fb9647665fdffb8efac1d4f64ae"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_shader.d",
+      "bytes": 20862,
+      "sha256": "cd8ec22bbd3c746b5bec6998d85be7b0919f976eba6309c69df4f311f9f17b43"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_swapchain.d",
+      "bytes": 22200,
+      "sha256": "4bacddc586e05e99b1ab46fb5aafba914c697c5c443c6998a8aa3104797c87e3"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/dk_variable.d",
+      "bytes": 21568,
+      "sha256": "15e4cca0fc68492a59568f4b60fc5763d53ecb8dbc058b859468c8ce404cf9f7"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_3d_base.d",
+      "bytes": 23446,
+      "sha256": "342f9676024e5fe4d0a9d86e05c57172797a502378cf9f2cc2c133cfb4663ca3"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_3d_ibo.d",
+      "bytes": 21758,
+      "sha256": "f5d59ece8a993349a2e1e5c4d33404c578a9065319903bc6963e34a1aaf86dfc"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_3d_ms.d",
+      "bytes": 22512,
+      "sha256": "cb18cd572af4c6a54fa21a082cca2ae16fc00af2b440bec288819eccd9e82554"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_3d_state.d",
+      "bytes": 21928,
+      "sha256": "34a0e65e6933eeeb96760df205fc99c62cc59dbe6fc7b6f5d3d042af85d484b9"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_3d_vbo.d",
+      "bytes": 21758,
+      "sha256": "f29d44a1c43eca3e7334e8ce68eb6315ee1e385c28128cf410ff1fd78ba03943"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_3d_zcull.d",
+      "bytes": 20838,
+      "sha256": "7a9a997ae5e0239f586390ca744fbc0a23ed37b16fff21f72c625256fdf147ba"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_base.d",
+      "bytes": 23132,
+      "sha256": "96f9d13f60640e37d795f5a094e6487207ac5afcc0b8d03e7c371d6b136ff329"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_compute.d",
+      "bytes": 23084,
+      "sha256": "c5a924d1691696af4f79e2492e3877ccadca59f4092ed29db432ff534f935bb3"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_error.d",
+      "bytes": 21686,
+      "sha256": "feabcbf7855cd05b8c72cddbcd07581c6d60dfe1178a21a7c97b41ebbcce1f2d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/gpu_transfer.d",
+      "bytes": 23380,
+      "sha256": "c5e367686486a873fb6f55e423175690ca10587e56f61d8855dc1d63e5b788a9"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/image_formats.d",
+      "bytes": 20292,
+      "sha256": "09525e9bf53a8b0690b9954d6f444890514194273bd9f1065b97a7ee8f99baba"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/libdeko3d-aspect.a",
+      "bytes": 3477688,
+      "sha256": "7cebcdd25fbd10d951ec9917423cbd9235556ddb4e0d16b18801eb79d6ce4a7e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/queue_compute.d",
+      "bytes": 22232,
+      "sha256": "b633a08da80b665173183ef12d3a42b7f74f69206cc0e1330b9b6538e08b4c62"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/queue_workbuf.d",
+      "bytes": 21080,
+      "sha256": "1a85dab18b41018190f603eeb43b7ce6178ee13daa2b04505b0cba5f5433db8c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/tic_generate.d",
+      "bytes": 20924,
+      "sha256": "fe5d2b07374d128676d9ff35e1a4374c06c2bf68a231d077d64c9a31a00fbf85"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/cross-reviewed/tsc_generate.d",
+      "bytes": 20546,
+      "sha256": "de371cffe28461cfc5ce9152ca65cf882f4e1d11b81ca896ca8bf6d603509af1"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/dekotools/dekodef",
+      "bytes": 79912,
+      "sha256": "1f0febfc6409c09a578b650ae5b88131290240eb4c2ada4230f10b6ef3b5cec1"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/dekotools/dekomme",
+      "bytes": 70608,
+      "sha256": "065d46a579ba94673b87c890675066798cf577fb3ad5598253394075e4c16896"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/future-gpu-fixture/expected-packed.bin",
+      "bytes": 836,
+      "sha256": "94db24abb66697bc8839eea638c75a8a420980585a1af57c9a16f24431e3d393"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/future-gpu-fixture/fixture.json",
+      "bytes": 1253,
+      "sha256": "83aa944fae9dc20548b573f8aeea5776763d5943e478b58d7c06850a8b1aff3c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/future-gpu-fixture/initial-packed.bin",
+      "bytes": 836,
+      "sha256": "867fe90892662c55024647c8c027038aa0fe3f73417ca1b0236a425a8bbada7f"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/future-gpu-fixture/stencil-source.bin",
+      "bytes": 517,
+      "sha256": "65dfe5cc98fc497d33e3162c5fcd2b50ae6b53b3ec6d786c1eca049212ca1189"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/host-committed/Testing/Temporary/CTestCostData.txt",
+      "bytes": 72,
+      "sha256": "555d84fc7c03f0b6a0bb36b531885d505d76dabccb590dd61e6142034277b8f6"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/host-committed/Testing/Temporary/LastTest.log",
+      "bytes": 3389,
+      "sha256": "7a2afe7c3763de7d5942a4bc6b38b5807f30488437f081f1e037e5aad7fc66dd"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/host-final/Testing/Temporary/CTestCostData.txt",
+      "bytes": 88,
+      "sha256": "de15348e401aacc0b71e965751f63fa2314b22f55ed199ac0d20e0663fb0c64a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/host-final/Testing/Temporary/LastTest.log",
+      "bytes": 213955275,
+      "sha256": "880ce11ac37b11fef0c2598d141b0de141d25184c674cf493103a49f858f71d2"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/host-final/Testing/Temporary/LastTestsFailed.log",
+      "bytes": 26,
+      "sha256": "c5ff91b7189053896c9b623ed9ba6a7a0b6b1e682611782bb053e5ed5ae64dba"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/host-reviewed/Testing/Temporary/CTestCostData.txt",
+      "bytes": 72,
+      "sha256": "ccc29a595080447cace13889bf825f173a8007df6e44945f119d75e36d1c9e44"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/host-reviewed/Testing/Temporary/LastTest.log",
+      "bytes": 3385,
+      "sha256": "1c16d59d7db42faf785cdaa717c01e260127ae663a8bd567570ec97df689cef7"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/host-with-tools/Testing/Temporary/CTestCostData.txt",
+      "bytes": 72,
+      "sha256": "4ec74a8f7a58f2a06df2a5fc082f76a0f8ffcf803a9832d444f5cdf204af1645"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/host-with-tools/Testing/Temporary/LastTest.log",
+      "bytes": 2939,
+      "sha256": "f246b6cedc1d1d3cf749b81db27af866b49ee39d7193fd8b8d6b2ecbcc9987cd"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-abi.bin",
+      "bytes": 96,
+      "sha256": "610bbbe92f42d61a5ee73dcd5bb188573919cd69fbce0c43ba0cd8f0e1694219"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-abi.o",
+      "bytes": 1296,
+      "sha256": "9a356cd88227e72691ed914549b41075300f1e4d195442c43098e935e0b7c265"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-cmd_bind_common.o",
+      "bytes": 6440,
+      "sha256": "98269e2aa7f14785128812fae7114c3e76c9ccadbbe1d7284091d10aeaaff372"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-codesegmgr.o",
+      "bytes": 3304,
+      "sha256": "a98f1c9dbe3a627072642975150aefce24244452a7dc8d5c8a024d17f03df390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-dk_cmdbuf.o",
+      "bytes": 10208,
+      "sha256": "91183c2f464d9a21344d6fcfaf3979d05b073e94b5b3ea9601b12193dc73bbdb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-dk_device.o",
+      "bytes": 9856,
+      "sha256": "ad584f003c98e9306a0b61cf4d540cf8f209a12af4dd459a1618f1e975b1092e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-dk_fence.o",
+      "bytes": 2456,
+      "sha256": "cb9ac45d1311abd538ed702e1508ff4d783c8701b8d42798b578e13013f2c778"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-dk_image.o",
+      "bytes": 11160,
+      "sha256": "eca0d570a8b4514c9694b3d2322e55bb5f4376b15fdbf9508489171f97d8ed25"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-dk_memblock.o",
+      "bytes": 6184,
+      "sha256": "d868ee652d4bbfb27bc7b688fabae7b1d9626aa1f1d2bc644f0db009b4ce0f70"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-dk_queue.o",
+      "bytes": 16760,
+      "sha256": "e8691cc42433f72d9f970c100a38e4a24846d7ecf7e635d5ae821be7d09c7c3e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-dk_shader.o",
+      "bytes": 2392,
+      "sha256": "1c2fa8032ae474f83d495127300dc288fbfb945ba828ce7e39201b01d36857f0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-dk_swapchain.o",
+      "bytes": 8560,
+      "sha256": "670541bbb449de7d61720c33b48a1c66b0d297f187557670ebd39eea74ab39b0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-dk_variable.o",
+      "bytes": 5712,
+      "sha256": "2c818d07ea7549bd7c2c25e4c06392e243ca0bf743dcb8ee25e8bc92ffa1e24d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_3d_base.o",
+      "bytes": 13424,
+      "sha256": "3c87768b86ea0ce419bda4d035578b85d6cba59664d5d64587ff4cff4b323e14"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_3d_ibo.o",
+      "bytes": 1936,
+      "sha256": "67316fb626ebac272c345597e4fc11c0125c677febda414442b76818550d536d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_3d_ms.o",
+      "bytes": 5144,
+      "sha256": "2951a8091c13918d07e208a390f926b324029e0e7e47cbd8f336934ef326eb21"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_3d_state.o",
+      "bytes": 13000,
+      "sha256": "f8ad3c5639cd1fb6f726e09b37f760b84d65fe80eee29cbfecd339e8d5090390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_3d_vbo.o",
+      "bytes": 2736,
+      "sha256": "46c1f440ee5ab5fcec68291ee3921c135ef7f02f879068100240f64e7b0672a0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_3d_zcull.o",
+      "bytes": 1368,
+      "sha256": "23e298eadd5fec66410969bae7295434a303a05c1c14746313b30329fa0a5cae"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_base.o",
+      "bytes": 6304,
+      "sha256": "e648e5fdd522eb16f6a1d73b5ec0634be0c7cdba3293272e48edeb6639bac6eb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_compute.o",
+      "bytes": 5064,
+      "sha256": "616e5de789a3255824bfcb82cfaa0c6e98522d8e199537229fe75655298fcd29"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_error.o",
+      "bytes": 2136,
+      "sha256": "d57a62932de9e4d8150545bd1c18e2e40e0b32e3a8dbeb184062f7cd8ffcc55e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-gpu_transfer.o",
+      "bytes": 4944,
+      "sha256": "c962a37158fbf3c9403b637857503ff6fb065e28ff657587419cb0e695cdd6a4"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-image_formats.o",
+      "bytes": 5456,
+      "sha256": "9c5e4bb801995a7f367d7f239230c184c47ecfc6dc52a7bea385b14cc5d1a48d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-queue_compute.o",
+      "bytes": 3696,
+      "sha256": "ac05eca5ef4b0b01f75ef024620cbb3814c8b8eba1e75f951732c5fd4e9b35ec"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-queue_workbuf.o",
+      "bytes": 1464,
+      "sha256": "ba8ca45d69aef794ac3383291c2cd52602648e0f03538e05b8939903e6868a5b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-symbols.txt",
+      "bytes": 10146,
+      "sha256": "69a5f14a972f427818e859b0054f235a650913290177f4cdc8030b191978fc2c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-tic_generate.o",
+      "bytes": 3512,
+      "sha256": "35c4a3874842587e9e02496546a5401fa1391e7ec2826742fa559e7c1339b2cd"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/baseline-tsc_generate.o",
+      "bytes": 3504,
+      "sha256": "477d845376bfe3e909ccaa71fbfa8b8120371ecaa4baa30ad0d0874736127e20"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/commands.bin",
+      "bytes": 76,
+      "sha256": "c0ba6e372c7a6f74ed70a1dc64c0f30d71faac189647cadd378764bad414355e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/dump_commands",
+      "bytes": 26544,
+      "sha256": "f624beaf247af619dc851f66be600c27d43c1b3c54b18e19836d572ad3c578e8"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/new-c-abi.o",
+      "bytes": 1080,
+      "sha256": "d22256d86525f9131f8059e1c449279cbb48a697a5d62d1fbff2675265181b3a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/new-cxx-abi.o",
+      "bytes": 1080,
+      "sha256": "d22256d86525f9131f8059e1c449279cbb48a697a5d62d1fbff2675265181b3a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-abi.bin",
+      "bytes": 96,
+      "sha256": "610bbbe92f42d61a5ee73dcd5bb188573919cd69fbce0c43ba0cd8f0e1694219"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-abi.o",
+      "bytes": 1296,
+      "sha256": "9a356cd88227e72691ed914549b41075300f1e4d195442c43098e935e0b7c265"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-cmd_bind_common.o",
+      "bytes": 6440,
+      "sha256": "98269e2aa7f14785128812fae7114c3e76c9ccadbbe1d7284091d10aeaaff372"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-codesegmgr.o",
+      "bytes": 3304,
+      "sha256": "a98f1c9dbe3a627072642975150aefce24244452a7dc8d5c8a024d17f03df390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_cmdbuf.o",
+      "bytes": 10208,
+      "sha256": "91183c2f464d9a21344d6fcfaf3979d05b073e94b5b3ea9601b12193dc73bbdb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_device.o",
+      "bytes": 9856,
+      "sha256": "ad584f003c98e9306a0b61cf4d540cf8f209a12af4dd459a1618f1e975b1092e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_fence.o",
+      "bytes": 2456,
+      "sha256": "cb9ac45d1311abd538ed702e1508ff4d783c8701b8d42798b578e13013f2c778"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_image.o",
+      "bytes": 11160,
+      "sha256": "eca0d570a8b4514c9694b3d2322e55bb5f4376b15fdbf9508489171f97d8ed25"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_image_stencil.o",
+      "bytes": 3192,
+      "sha256": "48cea3ba762ef40ccfabca7c51081032608a83456df6877a2b753c11fde64781"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_memblock.o",
+      "bytes": 6184,
+      "sha256": "d868ee652d4bbfb27bc7b688fabae7b1d9626aa1f1d2bc644f0db009b4ce0f70"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_queue.o",
+      "bytes": 16760,
+      "sha256": "e8691cc42433f72d9f970c100a38e4a24846d7ecf7e635d5ae821be7d09c7c3e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_shader.o",
+      "bytes": 2392,
+      "sha256": "1c2fa8032ae474f83d495127300dc288fbfb945ba828ce7e39201b01d36857f0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_swapchain.o",
+      "bytes": 8560,
+      "sha256": "670541bbb449de7d61720c33b48a1c66b0d297f187557670ebd39eea74ab39b0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-dk_variable.o",
+      "bytes": 5712,
+      "sha256": "2c818d07ea7549bd7c2c25e4c06392e243ca0bf743dcb8ee25e8bc92ffa1e24d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_3d_base.o",
+      "bytes": 13424,
+      "sha256": "3c87768b86ea0ce419bda4d035578b85d6cba59664d5d64587ff4cff4b323e14"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_3d_ibo.o",
+      "bytes": 1936,
+      "sha256": "67316fb626ebac272c345597e4fc11c0125c677febda414442b76818550d536d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_3d_ms.o",
+      "bytes": 5144,
+      "sha256": "2951a8091c13918d07e208a390f926b324029e0e7e47cbd8f336934ef326eb21"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_3d_state.o",
+      "bytes": 13000,
+      "sha256": "f8ad3c5639cd1fb6f726e09b37f760b84d65fe80eee29cbfecd339e8d5090390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_3d_vbo.o",
+      "bytes": 2736,
+      "sha256": "46c1f440ee5ab5fcec68291ee3921c135ef7f02f879068100240f64e7b0672a0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_3d_zcull.o",
+      "bytes": 1368,
+      "sha256": "23e298eadd5fec66410969bae7295434a303a05c1c14746313b30329fa0a5cae"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_base.o",
+      "bytes": 6304,
+      "sha256": "e648e5fdd522eb16f6a1d73b5ec0634be0c7cdba3293272e48edeb6639bac6eb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_compute.o",
+      "bytes": 5064,
+      "sha256": "616e5de789a3255824bfcb82cfaa0c6e98522d8e199537229fe75655298fcd29"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_error.o",
+      "bytes": 2136,
+      "sha256": "d57a62932de9e4d8150545bd1c18e2e40e0b32e3a8dbeb184062f7cd8ffcc55e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-gpu_transfer.o",
+      "bytes": 4944,
+      "sha256": "c962a37158fbf3c9403b637857503ff6fb065e28ff657587419cb0e695cdd6a4"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-image_formats.o",
+      "bytes": 5456,
+      "sha256": "9c5e4bb801995a7f367d7f239230c184c47ecfc6dc52a7bea385b14cc5d1a48d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-queue_compute.o",
+      "bytes": 3696,
+      "sha256": "ac05eca5ef4b0b01f75ef024620cbb3814c8b8eba1e75f951732c5fd4e9b35ec"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-queue_workbuf.o",
+      "bytes": 1464,
+      "sha256": "ba8ca45d69aef794ac3383291c2cd52602648e0f03538e05b8939903e6868a5b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-symbols.txt",
+      "bytes": 10388,
+      "sha256": "3ae19c1a94149edb387cb27981afe7777cf8c025fb3aad74bfd9c03d3d52c456"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-tic_generate.o",
+      "bytes": 3512,
+      "sha256": "35c4a3874842587e9e02496546a5401fa1391e7ec2826742fa559e7c1339b2cd"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/prototype-tsc_generate.o",
+      "bytes": 3504,
+      "sha256": "477d845376bfe3e909ccaa71fbfa8b8120371ecaa4baa30ad0d0874736127e20"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification/proof/result.json",
+      "bytes": 70920,
+      "sha256": "47856790c8233a9052a3aa85ee02ac43e71342b4c107cece338240ac61335c39"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-abi.bin",
+      "bytes": 96,
+      "sha256": "610bbbe92f42d61a5ee73dcd5bb188573919cd69fbce0c43ba0cd8f0e1694219"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-abi.o",
+      "bytes": 1296,
+      "sha256": "9a356cd88227e72691ed914549b41075300f1e4d195442c43098e935e0b7c265"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-cmd_bind_common.o",
+      "bytes": 6440,
+      "sha256": "98269e2aa7f14785128812fae7114c3e76c9ccadbbe1d7284091d10aeaaff372"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-codesegmgr.o",
+      "bytes": 3304,
+      "sha256": "a98f1c9dbe3a627072642975150aefce24244452a7dc8d5c8a024d17f03df390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-dk_cmdbuf.o",
+      "bytes": 10208,
+      "sha256": "91183c2f464d9a21344d6fcfaf3979d05b073e94b5b3ea9601b12193dc73bbdb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-dk_device.o",
+      "bytes": 9856,
+      "sha256": "ad584f003c98e9306a0b61cf4d540cf8f209a12af4dd459a1618f1e975b1092e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-dk_fence.o",
+      "bytes": 2456,
+      "sha256": "cb9ac45d1311abd538ed702e1508ff4d783c8701b8d42798b578e13013f2c778"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-dk_image.o",
+      "bytes": 11160,
+      "sha256": "eca0d570a8b4514c9694b3d2322e55bb5f4376b15fdbf9508489171f97d8ed25"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-dk_memblock.o",
+      "bytes": 6184,
+      "sha256": "d868ee652d4bbfb27bc7b688fabae7b1d9626aa1f1d2bc644f0db009b4ce0f70"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-dk_queue.o",
+      "bytes": 16760,
+      "sha256": "e8691cc42433f72d9f970c100a38e4a24846d7ecf7e635d5ae821be7d09c7c3e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-dk_shader.o",
+      "bytes": 2392,
+      "sha256": "1c2fa8032ae474f83d495127300dc288fbfb945ba828ce7e39201b01d36857f0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-dk_swapchain.o",
+      "bytes": 8560,
+      "sha256": "670541bbb449de7d61720c33b48a1c66b0d297f187557670ebd39eea74ab39b0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-dk_variable.o",
+      "bytes": 5712,
+      "sha256": "2c818d07ea7549bd7c2c25e4c06392e243ca0bf743dcb8ee25e8bc92ffa1e24d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_3d_base.o",
+      "bytes": 13424,
+      "sha256": "3c87768b86ea0ce419bda4d035578b85d6cba59664d5d64587ff4cff4b323e14"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_3d_ibo.o",
+      "bytes": 1936,
+      "sha256": "67316fb626ebac272c345597e4fc11c0125c677febda414442b76818550d536d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_3d_ms.o",
+      "bytes": 5144,
+      "sha256": "2951a8091c13918d07e208a390f926b324029e0e7e47cbd8f336934ef326eb21"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_3d_state.o",
+      "bytes": 13000,
+      "sha256": "f8ad3c5639cd1fb6f726e09b37f760b84d65fe80eee29cbfecd339e8d5090390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_3d_vbo.o",
+      "bytes": 2736,
+      "sha256": "46c1f440ee5ab5fcec68291ee3921c135ef7f02f879068100240f64e7b0672a0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_3d_zcull.o",
+      "bytes": 1368,
+      "sha256": "23e298eadd5fec66410969bae7295434a303a05c1c14746313b30329fa0a5cae"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_base.o",
+      "bytes": 6304,
+      "sha256": "e648e5fdd522eb16f6a1d73b5ec0634be0c7cdba3293272e48edeb6639bac6eb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_compute.o",
+      "bytes": 5064,
+      "sha256": "616e5de789a3255824bfcb82cfaa0c6e98522d8e199537229fe75655298fcd29"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_error.o",
+      "bytes": 2136,
+      "sha256": "d57a62932de9e4d8150545bd1c18e2e40e0b32e3a8dbeb184062f7cd8ffcc55e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-gpu_transfer.o",
+      "bytes": 4944,
+      "sha256": "c962a37158fbf3c9403b637857503ff6fb065e28ff657587419cb0e695cdd6a4"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-image_formats.o",
+      "bytes": 5456,
+      "sha256": "9c5e4bb801995a7f367d7f239230c184c47ecfc6dc52a7bea385b14cc5d1a48d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-queue_compute.o",
+      "bytes": 3696,
+      "sha256": "ac05eca5ef4b0b01f75ef024620cbb3814c8b8eba1e75f951732c5fd4e9b35ec"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-queue_workbuf.o",
+      "bytes": 1464,
+      "sha256": "ba8ca45d69aef794ac3383291c2cd52602648e0f03538e05b8939903e6868a5b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-symbols.txt",
+      "bytes": 10146,
+      "sha256": "69a5f14a972f427818e859b0054f235a650913290177f4cdc8030b191978fc2c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-tic_generate.o",
+      "bytes": 3512,
+      "sha256": "35c4a3874842587e9e02496546a5401fa1391e7ec2826742fa559e7c1339b2cd"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/baseline-tsc_generate.o",
+      "bytes": 3504,
+      "sha256": "477d845376bfe3e909ccaa71fbfa8b8120371ecaa4baa30ad0d0874736127e20"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/commands.bin",
+      "bytes": 76,
+      "sha256": "c0ba6e372c7a6f74ed70a1dc64c0f30d71faac189647cadd378764bad414355e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/dump_commands",
+      "bytes": 26544,
+      "sha256": "f624beaf247af619dc851f66be600c27d43c1b3c54b18e19836d572ad3c578e8"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/new-c-abi.o",
+      "bytes": 1080,
+      "sha256": "d22256d86525f9131f8059e1c449279cbb48a697a5d62d1fbff2675265181b3a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/new-cxx-abi.o",
+      "bytes": 1080,
+      "sha256": "d22256d86525f9131f8059e1c449279cbb48a697a5d62d1fbff2675265181b3a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-abi.bin",
+      "bytes": 96,
+      "sha256": "610bbbe92f42d61a5ee73dcd5bb188573919cd69fbce0c43ba0cd8f0e1694219"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-abi.o",
+      "bytes": 1296,
+      "sha256": "9a356cd88227e72691ed914549b41075300f1e4d195442c43098e935e0b7c265"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-cmd_bind_common.o",
+      "bytes": 6440,
+      "sha256": "98269e2aa7f14785128812fae7114c3e76c9ccadbbe1d7284091d10aeaaff372"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-codesegmgr.o",
+      "bytes": 3304,
+      "sha256": "a98f1c9dbe3a627072642975150aefce24244452a7dc8d5c8a024d17f03df390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_cmdbuf.o",
+      "bytes": 10208,
+      "sha256": "91183c2f464d9a21344d6fcfaf3979d05b073e94b5b3ea9601b12193dc73bbdb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_device.o",
+      "bytes": 9856,
+      "sha256": "ad584f003c98e9306a0b61cf4d540cf8f209a12af4dd459a1618f1e975b1092e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_fence.o",
+      "bytes": 2456,
+      "sha256": "cb9ac45d1311abd538ed702e1508ff4d783c8701b8d42798b578e13013f2c778"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_image.o",
+      "bytes": 11160,
+      "sha256": "eca0d570a8b4514c9694b3d2322e55bb5f4376b15fdbf9508489171f97d8ed25"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_image_stencil.o",
+      "bytes": 3192,
+      "sha256": "48cea3ba762ef40ccfabca7c51081032608a83456df6877a2b753c11fde64781"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_memblock.o",
+      "bytes": 6184,
+      "sha256": "d868ee652d4bbfb27bc7b688fabae7b1d9626aa1f1d2bc644f0db009b4ce0f70"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_queue.o",
+      "bytes": 16760,
+      "sha256": "e8691cc42433f72d9f970c100a38e4a24846d7ecf7e635d5ae821be7d09c7c3e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_shader.o",
+      "bytes": 2392,
+      "sha256": "1c2fa8032ae474f83d495127300dc288fbfb945ba828ce7e39201b01d36857f0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_swapchain.o",
+      "bytes": 8560,
+      "sha256": "670541bbb449de7d61720c33b48a1c66b0d297f187557670ebd39eea74ab39b0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-dk_variable.o",
+      "bytes": 5712,
+      "sha256": "2c818d07ea7549bd7c2c25e4c06392e243ca0bf743dcb8ee25e8bc92ffa1e24d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_3d_base.o",
+      "bytes": 13424,
+      "sha256": "3c87768b86ea0ce419bda4d035578b85d6cba59664d5d64587ff4cff4b323e14"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_3d_ibo.o",
+      "bytes": 1936,
+      "sha256": "67316fb626ebac272c345597e4fc11c0125c677febda414442b76818550d536d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_3d_ms.o",
+      "bytes": 5144,
+      "sha256": "2951a8091c13918d07e208a390f926b324029e0e7e47cbd8f336934ef326eb21"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_3d_state.o",
+      "bytes": 13000,
+      "sha256": "f8ad3c5639cd1fb6f726e09b37f760b84d65fe80eee29cbfecd339e8d5090390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_3d_vbo.o",
+      "bytes": 2736,
+      "sha256": "46c1f440ee5ab5fcec68291ee3921c135ef7f02f879068100240f64e7b0672a0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_3d_zcull.o",
+      "bytes": 1368,
+      "sha256": "23e298eadd5fec66410969bae7295434a303a05c1c14746313b30329fa0a5cae"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_base.o",
+      "bytes": 6304,
+      "sha256": "e648e5fdd522eb16f6a1d73b5ec0634be0c7cdba3293272e48edeb6639bac6eb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_compute.o",
+      "bytes": 5064,
+      "sha256": "616e5de789a3255824bfcb82cfaa0c6e98522d8e199537229fe75655298fcd29"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_error.o",
+      "bytes": 2136,
+      "sha256": "d57a62932de9e4d8150545bd1c18e2e40e0b32e3a8dbeb184062f7cd8ffcc55e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-gpu_transfer.o",
+      "bytes": 4944,
+      "sha256": "c962a37158fbf3c9403b637857503ff6fb065e28ff657587419cb0e695cdd6a4"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-image_formats.o",
+      "bytes": 5456,
+      "sha256": "9c5e4bb801995a7f367d7f239230c184c47ecfc6dc52a7bea385b14cc5d1a48d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-queue_compute.o",
+      "bytes": 3696,
+      "sha256": "ac05eca5ef4b0b01f75ef024620cbb3814c8b8eba1e75f951732c5fd4e9b35ec"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-queue_workbuf.o",
+      "bytes": 1464,
+      "sha256": "ba8ca45d69aef794ac3383291c2cd52602648e0f03538e05b8939903e6868a5b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-symbols.txt",
+      "bytes": 10388,
+      "sha256": "3ae19c1a94149edb387cb27981afe7777cf8c025fb3aad74bfd9c03d3d52c456"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-tic_generate.o",
+      "bytes": 3512,
+      "sha256": "35c4a3874842587e9e02496546a5401fa1391e7ec2826742fa559e7c1339b2cd"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/prototype-tsc_generate.o",
+      "bytes": 3504,
+      "sha256": "477d845376bfe3e909ccaa71fbfa8b8120371ecaa4baa30ad0d0874736127e20"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-committed/proof/result.json",
+      "bytes": 72442,
+      "sha256": "9805a9dedbefee457960a69f421bf8959d005240908e863a1d7ef6b4ab493c9a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-abi.bin",
+      "bytes": 96,
+      "sha256": "610bbbe92f42d61a5ee73dcd5bb188573919cd69fbce0c43ba0cd8f0e1694219"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-abi.o",
+      "bytes": 1296,
+      "sha256": "9a356cd88227e72691ed914549b41075300f1e4d195442c43098e935e0b7c265"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-cmd_bind_common.o",
+      "bytes": 6440,
+      "sha256": "98269e2aa7f14785128812fae7114c3e76c9ccadbbe1d7284091d10aeaaff372"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-codesegmgr.o",
+      "bytes": 3304,
+      "sha256": "a98f1c9dbe3a627072642975150aefce24244452a7dc8d5c8a024d17f03df390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-dk_cmdbuf.o",
+      "bytes": 10208,
+      "sha256": "91183c2f464d9a21344d6fcfaf3979d05b073e94b5b3ea9601b12193dc73bbdb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-dk_device.o",
+      "bytes": 9856,
+      "sha256": "ad584f003c98e9306a0b61cf4d540cf8f209a12af4dd459a1618f1e975b1092e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-dk_fence.o",
+      "bytes": 2456,
+      "sha256": "cb9ac45d1311abd538ed702e1508ff4d783c8701b8d42798b578e13013f2c778"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-dk_image.o",
+      "bytes": 11160,
+      "sha256": "eca0d570a8b4514c9694b3d2322e55bb5f4376b15fdbf9508489171f97d8ed25"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-dk_memblock.o",
+      "bytes": 6184,
+      "sha256": "d868ee652d4bbfb27bc7b688fabae7b1d9626aa1f1d2bc644f0db009b4ce0f70"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-dk_queue.o",
+      "bytes": 16760,
+      "sha256": "e8691cc42433f72d9f970c100a38e4a24846d7ecf7e635d5ae821be7d09c7c3e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-dk_shader.o",
+      "bytes": 2392,
+      "sha256": "1c2fa8032ae474f83d495127300dc288fbfb945ba828ce7e39201b01d36857f0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-dk_swapchain.o",
+      "bytes": 8560,
+      "sha256": "670541bbb449de7d61720c33b48a1c66b0d297f187557670ebd39eea74ab39b0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-dk_variable.o",
+      "bytes": 5712,
+      "sha256": "2c818d07ea7549bd7c2c25e4c06392e243ca0bf743dcb8ee25e8bc92ffa1e24d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_3d_base.o",
+      "bytes": 13424,
+      "sha256": "3c87768b86ea0ce419bda4d035578b85d6cba59664d5d64587ff4cff4b323e14"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_3d_ibo.o",
+      "bytes": 1936,
+      "sha256": "67316fb626ebac272c345597e4fc11c0125c677febda414442b76818550d536d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_3d_ms.o",
+      "bytes": 5144,
+      "sha256": "2951a8091c13918d07e208a390f926b324029e0e7e47cbd8f336934ef326eb21"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_3d_state.o",
+      "bytes": 13000,
+      "sha256": "f8ad3c5639cd1fb6f726e09b37f760b84d65fe80eee29cbfecd339e8d5090390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_3d_vbo.o",
+      "bytes": 2736,
+      "sha256": "46c1f440ee5ab5fcec68291ee3921c135ef7f02f879068100240f64e7b0672a0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_3d_zcull.o",
+      "bytes": 1368,
+      "sha256": "23e298eadd5fec66410969bae7295434a303a05c1c14746313b30329fa0a5cae"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_base.o",
+      "bytes": 6304,
+      "sha256": "e648e5fdd522eb16f6a1d73b5ec0634be0c7cdba3293272e48edeb6639bac6eb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_compute.o",
+      "bytes": 5064,
+      "sha256": "616e5de789a3255824bfcb82cfaa0c6e98522d8e199537229fe75655298fcd29"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_error.o",
+      "bytes": 2136,
+      "sha256": "d57a62932de9e4d8150545bd1c18e2e40e0b32e3a8dbeb184062f7cd8ffcc55e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-gpu_transfer.o",
+      "bytes": 4944,
+      "sha256": "c962a37158fbf3c9403b637857503ff6fb065e28ff657587419cb0e695cdd6a4"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-image_formats.o",
+      "bytes": 5456,
+      "sha256": "9c5e4bb801995a7f367d7f239230c184c47ecfc6dc52a7bea385b14cc5d1a48d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-queue_compute.o",
+      "bytes": 3696,
+      "sha256": "ac05eca5ef4b0b01f75ef024620cbb3814c8b8eba1e75f951732c5fd4e9b35ec"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-queue_workbuf.o",
+      "bytes": 1464,
+      "sha256": "ba8ca45d69aef794ac3383291c2cd52602648e0f03538e05b8939903e6868a5b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-symbols.txt",
+      "bytes": 10146,
+      "sha256": "69a5f14a972f427818e859b0054f235a650913290177f4cdc8030b191978fc2c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-tic_generate.o",
+      "bytes": 3512,
+      "sha256": "35c4a3874842587e9e02496546a5401fa1391e7ec2826742fa559e7c1339b2cd"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/baseline-tsc_generate.o",
+      "bytes": 3504,
+      "sha256": "477d845376bfe3e909ccaa71fbfa8b8120371ecaa4baa30ad0d0874736127e20"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/commands.bin",
+      "bytes": 76,
+      "sha256": "c0ba6e372c7a6f74ed70a1dc64c0f30d71faac189647cadd378764bad414355e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/dump_commands",
+      "bytes": 26544,
+      "sha256": "f624beaf247af619dc851f66be600c27d43c1b3c54b18e19836d572ad3c578e8"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/new-c-abi.o",
+      "bytes": 1080,
+      "sha256": "d22256d86525f9131f8059e1c449279cbb48a697a5d62d1fbff2675265181b3a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/new-cxx-abi.o",
+      "bytes": 1080,
+      "sha256": "d22256d86525f9131f8059e1c449279cbb48a697a5d62d1fbff2675265181b3a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-abi.bin",
+      "bytes": 96,
+      "sha256": "610bbbe92f42d61a5ee73dcd5bb188573919cd69fbce0c43ba0cd8f0e1694219"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-abi.o",
+      "bytes": 1296,
+      "sha256": "9a356cd88227e72691ed914549b41075300f1e4d195442c43098e935e0b7c265"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-cmd_bind_common.o",
+      "bytes": 6440,
+      "sha256": "98269e2aa7f14785128812fae7114c3e76c9ccadbbe1d7284091d10aeaaff372"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-codesegmgr.o",
+      "bytes": 3304,
+      "sha256": "a98f1c9dbe3a627072642975150aefce24244452a7dc8d5c8a024d17f03df390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_cmdbuf.o",
+      "bytes": 10208,
+      "sha256": "91183c2f464d9a21344d6fcfaf3979d05b073e94b5b3ea9601b12193dc73bbdb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_device.o",
+      "bytes": 9856,
+      "sha256": "ad584f003c98e9306a0b61cf4d540cf8f209a12af4dd459a1618f1e975b1092e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_fence.o",
+      "bytes": 2456,
+      "sha256": "cb9ac45d1311abd538ed702e1508ff4d783c8701b8d42798b578e13013f2c778"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_image.o",
+      "bytes": 11160,
+      "sha256": "eca0d570a8b4514c9694b3d2322e55bb5f4376b15fdbf9508489171f97d8ed25"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_image_stencil.o",
+      "bytes": 3192,
+      "sha256": "48cea3ba762ef40ccfabca7c51081032608a83456df6877a2b753c11fde64781"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_memblock.o",
+      "bytes": 6184,
+      "sha256": "d868ee652d4bbfb27bc7b688fabae7b1d9626aa1f1d2bc644f0db009b4ce0f70"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_queue.o",
+      "bytes": 16760,
+      "sha256": "e8691cc42433f72d9f970c100a38e4a24846d7ecf7e635d5ae821be7d09c7c3e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_shader.o",
+      "bytes": 2392,
+      "sha256": "1c2fa8032ae474f83d495127300dc288fbfb945ba828ce7e39201b01d36857f0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_swapchain.o",
+      "bytes": 8560,
+      "sha256": "670541bbb449de7d61720c33b48a1c66b0d297f187557670ebd39eea74ab39b0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-dk_variable.o",
+      "bytes": 5712,
+      "sha256": "2c818d07ea7549bd7c2c25e4c06392e243ca0bf743dcb8ee25e8bc92ffa1e24d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_3d_base.o",
+      "bytes": 13424,
+      "sha256": "3c87768b86ea0ce419bda4d035578b85d6cba59664d5d64587ff4cff4b323e14"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_3d_ibo.o",
+      "bytes": 1936,
+      "sha256": "67316fb626ebac272c345597e4fc11c0125c677febda414442b76818550d536d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_3d_ms.o",
+      "bytes": 5144,
+      "sha256": "2951a8091c13918d07e208a390f926b324029e0e7e47cbd8f336934ef326eb21"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_3d_state.o",
+      "bytes": 13000,
+      "sha256": "f8ad3c5639cd1fb6f726e09b37f760b84d65fe80eee29cbfecd339e8d5090390"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_3d_vbo.o",
+      "bytes": 2736,
+      "sha256": "46c1f440ee5ab5fcec68291ee3921c135ef7f02f879068100240f64e7b0672a0"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_3d_zcull.o",
+      "bytes": 1368,
+      "sha256": "23e298eadd5fec66410969bae7295434a303a05c1c14746313b30329fa0a5cae"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_base.o",
+      "bytes": 6304,
+      "sha256": "e648e5fdd522eb16f6a1d73b5ec0634be0c7cdba3293272e48edeb6639bac6eb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_compute.o",
+      "bytes": 5064,
+      "sha256": "616e5de789a3255824bfcb82cfaa0c6e98522d8e199537229fe75655298fcd29"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_error.o",
+      "bytes": 2136,
+      "sha256": "d57a62932de9e4d8150545bd1c18e2e40e0b32e3a8dbeb184062f7cd8ffcc55e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-gpu_transfer.o",
+      "bytes": 4944,
+      "sha256": "c962a37158fbf3c9403b637857503ff6fb065e28ff657587419cb0e695cdd6a4"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-image_formats.o",
+      "bytes": 5456,
+      "sha256": "9c5e4bb801995a7f367d7f239230c184c47ecfc6dc52a7bea385b14cc5d1a48d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-queue_compute.o",
+      "bytes": 3696,
+      "sha256": "ac05eca5ef4b0b01f75ef024620cbb3814c8b8eba1e75f951732c5fd4e9b35ec"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-queue_workbuf.o",
+      "bytes": 1464,
+      "sha256": "ba8ca45d69aef794ac3383291c2cd52602648e0f03538e05b8939903e6868a5b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-symbols.txt",
+      "bytes": 10388,
+      "sha256": "3ae19c1a94149edb387cb27981afe7777cf8c025fb3aad74bfd9c03d3d52c456"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-tic_generate.o",
+      "bytes": 3512,
+      "sha256": "35c4a3874842587e9e02496546a5401fa1391e7ec2826742fa559e7c1339b2cd"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/prototype-tsc_generate.o",
+      "bytes": 3504,
+      "sha256": "477d845376bfe3e909ccaa71fbfa8b8120371ecaa4baa30ad0d0874736127e20"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/builds/deko3d-aspect-copy/verification-reviewed/proof/result.json",
+      "bytes": 70935,
+      "sha256": "e1a0acd3c12424b69cfbf282706302763ea981c9118da7ad995a0c89933a0cec"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/00-preflight.json",
+      "bytes": 40992,
+      "sha256": "65d729c8db84fb1fc91b009726c7c15303e984baf6925f998d58b2447688c7bb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/00-protected-artifacts.json",
+      "bytes": 1222,
+      "sha256": "72289f22780dd4a520a5e861df80a5ccb399f89bc5c5478affd6f72d2fddbaa8"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/abi.c",
+      "bytes": 461,
+      "sha256": "e9c3b8cd04673241aaa6f83a361e67b730202c50b4c170f5bf249d3d6096b806"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/abi_new.c",
+      "bytes": 196,
+      "sha256": "1a0acb5ca3b001592dc0d33e9730d5fa6c8f3edc466d924a733c9872edfc093e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/committed-source-replay.json",
+      "bytes": 406,
+      "sha256": "6520264c53122f4f4be159276111dcb6c1231ab77c6f4fe1e43f1a654780e746"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-baseline-command.json",
+      "bytes": 2217,
+      "sha256": "c6a75a21506af785ede84cf6c2c34f20d9de10f2a1fffa65698fafc056a7fa9d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-baseline-complete-command.json",
+      "bytes": 2684,
+      "sha256": "cef6132039cd4cbf2257ffcb6f14a05351f6f5d08f6b34c3e435cf69541ae99f"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-baseline-complete-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-baseline-complete.log",
+      "bytes": 1135,
+      "sha256": "d353172bb73a205d122477235a5f1166ee16b89ac580c6166af4cc4373777899"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-baseline-result.json",
+      "bytes": 17,
+      "sha256": "0c0f888bbcfbebb60db029d9de74401c5105787fce727f52bdff37bcbcbdf33e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-baseline.log",
+      "bytes": 944,
+      "sha256": "9182d809087e34201ffbf4a6e47a0f0f3f36d16c448d0c2c69f0e1c54c1f020a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-committed-command.json",
+      "bytes": 2739,
+      "sha256": "4f553b8fd32f1ee718d5b78d7e9765376cebb80eb6e4ad9237c86e882d745135"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-committed-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-committed.log",
+      "bytes": 1175,
+      "sha256": "6619a396fcb18317cc1e9e9011e24fa20c30fe9b594acb39035de5768f8ee2ce"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-first-command.json",
+      "bytes": 2158,
+      "sha256": "02b2f6297bdd3622c8999df3659d6ed9035a14d7f9c7bf555981088fdf746dd2"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-first-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-first.log",
+      "bytes": 261,
+      "sha256": "5aa8172cfaad01441a692ee2bab63649b1ed6427e8dbcc669c242a4f961ce372"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-prototype-command.json",
+      "bytes": 2307,
+      "sha256": "a3125cab0844cbd7c653f537c699e5eb37fec6864563328f33291b8d01eb6e35"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-prototype-complete-command.json",
+      "bytes": 2793,
+      "sha256": "e3d9e076f90a061eaa89225e6250d688a7849e3a460154f2bc4c932b17da6c80"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-prototype-complete-result.json",
+      "bytes": 17,
+      "sha256": "0c0f888bbcfbebb60db029d9de74401c5105787fce727f52bdff37bcbcbdf33e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-prototype-complete.log",
+      "bytes": 889,
+      "sha256": "7f024e4e4a5010130bfe9c3a2a97426a1d44ab426832033dfb76ca17d1a1d75b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-prototype-final-command.json",
+      "bytes": 2760,
+      "sha256": "962aacb36f44120591d05c8d8fae19d355d1706da915343e0a30030412d2057c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-prototype-final-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-prototype-final.log",
+      "bytes": 1175,
+      "sha256": "29d3fec2315c77428f695cb33f9123eb33b5841d046339d981bdda3d9c10eb80"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-prototype-result.json",
+      "bytes": 17,
+      "sha256": "0c0f888bbcfbebb60db029d9de74401c5105787fce727f52bdff37bcbcbdf33e"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-prototype.log",
+      "bytes": 765,
+      "sha256": "8e2a62f82ed0302024c121ac94b7f828ad759f85d642be63a72b6ecbefabb895"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-reviewed-command.json",
+      "bytes": 2683,
+      "sha256": "84a27d9dba1c2fc2514a42230923ad1184538504498bb5fae765a7a514e8cd5a"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-reviewed-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/cross-reviewed.log",
+      "bytes": 1175,
+      "sha256": "29d3fec2315c77428f695cb33f9123eb33b5841d046339d981bdda3d9c10eb80"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/dekotools-command.json",
+      "bytes": 1097,
+      "sha256": "6d93229e3e7160bdbc55bf99681881e0d9a506134d2d6257bac8e4b9c37ef655"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/dekotools-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/dekotools.log",
+      "bytes": 1660,
+      "sha256": "e509199a8fcc132e279d898ec9c57df5fd9ceba7df0836c9f407534e70768739"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/dump_commands.cpp",
+      "bytes": 1205,
+      "sha256": "af222116a133bf36ec9233e65562f7cc007f5f7c39c0afff77028ce4c00971a6"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/finalize-negative-command.json",
+      "bytes": 191,
+      "sha256": "317145432df4ac3dbe8e9f0f0c558ee9904e9ceddc85db94c4f674a37ca54581"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/finalize-negative-result.json",
+      "bytes": 17,
+      "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/finalize-negative.log",
+      "bytes": 1618,
+      "sha256": "e50006edfae69b18d1b61ab7377a4194072f1fa86d1f84055f1983404c4271da"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/finalize_evidence.py",
+      "bytes": 10192,
+      "sha256": "8afe558c437a6b7d069726ee5fd89f1dd45e56e5e86fc9f7577c00c264f74e3f"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-committed-command.json",
+      "bytes": 1220,
+      "sha256": "ed08dba6d382dd2d501165f4e4a07813e4ad89f72083f230a2cfa12a665ff12d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-committed-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-committed.log",
+      "bytes": 6571,
+      "sha256": "b48eed86eb6dca0bbff248fb463e949214e2124560208b7e66ba02f01d85ec56"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-final-command.json",
+      "bytes": 1175,
+      "sha256": "94acc3f235a900febc8fff2c49117d5112ae9a6880236f4991cfb014980c3d0b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-final-result.json",
+      "bytes": 17,
+      "sha256": "5bb0d42726830177c433b622d0fec9cab15d20f2ed4b2ff29f7dfc396d68215b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-final.log",
+      "bytes": 235353883,
+      "sha256": "b1490a1d719a2bd2f840b30a8591a20ac240af199cba38d7fa37cd9fe9c52c04"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-first-command.json",
+      "bytes": 1094,
+      "sha256": "229e3edb82ff28acd9819cb3665e45bbcf42907c2f914906c5a1147db0b9508d"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-first-result.json",
+      "bytes": 17,
+      "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-first.log",
+      "bytes": 899,
+      "sha256": "a3aa629ca0441e70a7f5f393e37351425c38246706315f34d97899bbec2414fb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-red-command.json",
+      "bytes": 1076,
+      "sha256": "5e91e98ee2b546598b63beed7ddaf7a7ec618f313002b7375ba9966f49cd2b6b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-red-result.json",
+      "bytes": 17,
+      "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-red.log",
+      "bytes": 899,
+      "sha256": "a3aa629ca0441e70a7f5f393e37351425c38246706315f34d97899bbec2414fb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-reviewed-command.json",
+      "bytes": 1202,
+      "sha256": "7557ba4ae839560b7f81027cad27b0f69b363b89c792eae5506f6649da9af6ff"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-reviewed-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-reviewed.log",
+      "bytes": 6495,
+      "sha256": "3a052c1326666eb52a5d23f42944e0a4c1799eb811d5f1e0db76ce3a1861e3be"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-with-tools-command.json",
+      "bytes": 1220,
+      "sha256": "26eb1f5d8ceaf1b541deb2d1e386ad8102edb333cf336f291ce0cc02f2b98419"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-with-tools-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/host-with-tools.log",
+      "bytes": 6037,
+      "sha256": "3eed5e2c830a2d8cb67627758cba02865ce080c37b2108273fd065ed81fcb7de"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/independent-review.json",
+      "bytes": 2805,
+      "sha256": "8ac2325c8a9f470ff36b1703f1f0149c13d97604393915880552f1a473d2a6eb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/nvk-analysis.json",
+      "bytes": 3085,
+      "sha256": "8607ff81281187698438abb6e92b664665b225866fe2debdef2ed9f6a32da0d2"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/prepare_gpu_fixture.py",
+      "bytes": 2157,
+      "sha256": "e4813175c6ef7bef17f762bc446b09d408ecdcff9bdc416bdf8e35b253947b07"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/prototype-committed-source.tar",
+      "bytes": 655360,
+      "sha256": "dec7a9781bb5356fd36deee0d865ae053b0f8ee6c3da523182b86943f40b4519"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/prototype.patch",
+      "bytes": 22973,
+      "sha256": "9c8b9f5327218279ee8eae8c0e814e58bd5af913d7f89c2968289561de244a2c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/run_evidence.py",
+      "bytes": 5379,
+      "sha256": "35c9fff72f2dc0ea50adc1b3a8fe17323205a34f2c2eabd25f9f88df98fabc29"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/sanitizer-repeat-command.json",
+      "bytes": 963,
+      "sha256": "49228ed9cff59a6fa993690df91ea49bbfc5b4137fe3d82658cd65f7a995e162"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/sanitizer-repeat-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/sanitizer-repeat.log",
+      "bytes": 774,
+      "sha256": "7e236ed2445bdfeb5585ca3102dd01610d94aaf6f45fa56ec2aab028f6887d5b"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/tools-discovery-command.json",
+      "bytes": 1100,
+      "sha256": "53f8bdf2c9845699c8cce7362d1a8d8a9106da4f55edcf58515eee7d14901e60"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/tools-discovery-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/tools-discovery.log",
+      "bytes": 151,
+      "sha256": "6da8f5d44d131613844578623ff420c1b847b235fce316ef41f3f73aaea2eb41"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-command.json",
+      "bytes": 798,
+      "sha256": "7ea9adc2a1738d436d03159d91c1e5f206195411bde4879e568d61b8f5482f90"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-committed-command.json",
+      "bytes": 980,
+      "sha256": "ffd86c373cf43e235702dc868c33435c1695cae5cb04c539c0fdc54b627a162f"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-committed-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-committed.log",
+      "bytes": 608,
+      "sha256": "b4bc1079680d0b5b8314b6571174de181a9d37cb39c78d672e8b2167cf8a45eb"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-final-command.json",
+      "bytes": 804,
+      "sha256": "85ef31c1763aeb1e782c582293a5b525f23b961f6daef96e33a2453f61918b4c"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-final-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-final.log",
+      "bytes": 614,
+      "sha256": "bb45eaadc70950240fc3ddd53468f71720a91b4e19bda10a44a89e5ea90aaaea"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-result.json",
+      "bytes": 17,
+      "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-reviewed-command.json",
+      "bytes": 899,
+      "sha256": "93829c3bb7387231e97ce54796b9b72bea64926b1635ed07b88037602fea4efd"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-reviewed-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification-reviewed.log",
+      "bytes": 607,
+      "sha256": "5ee5801f137dc12ab80ff69f62cbcb922b29541ec05ab63b02b9bc5397980426"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verification.log",
+      "bytes": 362,
+      "sha256": "f5a75b924e7307ee364faf37af5d6ca197c34b3c0efd6a32dd50297ce6def8d3"
+    },
+    {
+      "path": "/home/gro/dusklight-deko3d/logs/deko3d-aspect-copy/verify_artifacts.py",
+      "bytes": 5793,
+      "sha256": "b3cd66365a2475ee9ba3c8ed0e6d353d4380c045f46c2c57005afa374e6863a4"
+    }
+  ],
+  "negative_evidence": [
+    "Initial missing dekodef prerequisite; pinned generators subsequently built in isolation",
+    "Initial inner-Make invocation produced an eight-byte empty archive; detected/rejected, never accepted or linked",
+    "Intermediate inner-Make invocations omitted generated-header dependencies",
+    "Production build detected sibling include-path problem; fixed before reviewed/committed validation",
+    "First proof helper directory-collision failure; corrected proof in a fresh subdirectory",
+    "First finalizer used Git rev-parse stdout newline in a revision argument; raw failure preserved, helper corrected before manifest creation",
+    "19-case sanitizer startup recursively emitted DEADLYSIGNAL before case output; CTest timeout preserved; unchanged binary repeat passed",
+    "Optional read-only analyst historical Git lookup missed an old object; current source verified",
+    "Steering a completed reviewer failed; no second review or successful steering claimed"
+  ],
+  "limitations": [
+    "No GM20B NoWrite/RMW execution or physical depth-preservation result",
+    "No hardware block-linear, cache/Zcull/visibility or resource-lifetime execution test",
+    "NVK rejects exact deko byte-order format; X mapping is independently source-derived",
+    "Not a finalized public API or production-ready integration",
+    "No formats/aspects/layouts beyond the stated narrow contract",
+    "No throughput or performance evidence"
+  ]
+}

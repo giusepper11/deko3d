@@ -40,6 +40,26 @@ def main():
                 for relative in files:tar.add(path/relative,arcname=relative,recursive=False)
         pending.append({'repository':repo['path'],'head':repo['head'],'status':repo['status'],'overlay_dir':str(dest.relative_to(package)),'label':'PENDING/UNACCEPTED snapshot; not a validated correction or new hardware evidence'})
     (package/'pending-changes.json').write_text(json.dumps(pending,indent=2)+'\n')
+    unreadable=[]
+    for current,dirs,files in os.walk(ROOT):
+        if Path(current)==ROOT:dirs[:]=[d for d in dirs if d!='migration']
+        unreadable.extend(str((Path(current)/name).relative_to(ROOT)) for name in files if not os.access(Path(current)/name,os.R_OK))
+    overrides={}
+    if unreadable:
+        raw=package/'permission-readback.tar'
+        command=['docker','run','--name','dusklight-migration-permission-readback','--user','0:0','--network','none','--read-only','--mount',f'type=bind,src={ROOT},dst=/source,readonly','-i',IMAGE,'tar','--create','--file=-','--directory=/source','--null','--verbatim-files-from','--no-recursion','--files-from=-']
+        with raw.open('xb') as out:
+            subprocess.run(command,input=b'\0'.join(os.fsencode(p) for p in unreadable)+b'\0',stdout=out,check=True)
+        copydir=package/'permission-readback';copydir.mkdir()
+        with tarfile.open(raw) as tar:
+            for member in tar:
+                assert member.name in unreadable and member.isfile(),member.name
+                destination=copydir/member.name;destination.parent.mkdir(parents=True,exist_ok=True)
+                payload=tar.extractfile(member);assert payload is not None
+                with destination.open('xb') as out:shutil.copyfileobj(payload,out)
+                overrides[member.name]=destination
+        assert set(overrides)==set(unreadable)
+        (package/'permission-readback.json').write_text(json.dumps({'source_mount':'read-only','source_owner_mode_unchanged':True,'files':unreadable,'command':command},indent=2)+'\n')
     entries=[];paths=[];directories=[]
     for current,dirs,files in os.walk(ROOT,followlinks=False):
         p=Path(current)
@@ -50,7 +70,7 @@ def main():
         for name in sorted(files):
             f=p/name
             if f.is_symlink() or not f.is_file():raise ValueError('unsupported snapshot file: '+str(f))
-            before=f.stat();h=digest(f);after=f.stat()
+            before=f.stat();h=digest(overrides.get(str(f.relative_to(ROOT)),f));after=f.stat()
             assert (before.st_size,before.st_mtime_ns)==(after.st_size,after.st_mtime_ns),('source changed',f)
             relative=f.relative_to(ROOT)
             entries.append({'path':str(relative),'bytes':after.st_size,'sha256':h,'mode':after.st_mode&0o777})
@@ -61,10 +81,18 @@ def main():
     workspace=package/'workspace.tar.zst';assert not workspace.exists()
     print('SNAPSHOT',len(entries),'files',manifest['total_regular_bytes'],'bytes',flush=True)
     with workspace.open('xb') as out,(package/'workspace-tar.log').open('x') as errors:
-        tar=subprocess.Popen(['tar','--create','--hard-dereference','--file=-','--directory='+str(ROOT.parent),'--null','--verbatim-files-from','--no-recursion','--files-from='+str(listfile)],stdout=subprocess.PIPE,stderr=errors)
-        assert tar.stdout is not None
-        zstd=subprocess.run(['zstd','-T2','-3','-q'],stdin=tar.stdout,stdout=out,stderr=errors);tar.stdout.close()
-        code=tar.wait();assert code==zstd.returncode==0,('tar/zstd',code,zstd.returncode)
+        compressor=subprocess.Popen(['zstd','-T2','-3','-q'],stdin=subprocess.PIPE,stdout=out,stderr=errors)
+        assert compressor.stdin is not None
+        with tarfile.open(fileobj=compressor.stdin,mode='w|') as tar:
+            for relative in paths:
+                name=os.fsdecode(relative);source=ROOT.parent/name
+                info=tar.gettarinfo(str(source),arcname=name)
+                if source.is_dir():tar.addfile(info);continue
+                # Emit every file independently; no archive links or dependency on
+                # inaccessible host permissions. Metadata still comes from source.
+                info.type=tarfile.REGTYPE;info.linkname='';info.size=source.stat().st_size
+                with overrides.get(str(source.relative_to(ROOT)),source).open('rb') as payload:tar.addfile(info,payload)
+        compressor.stdin.close();code=compressor.wait();assert code==0,('zstd',code)
     print('WORKSPACE_ARCHIVE',workspace.stat().st_size,flush=True)
     image=package/'toolchain.docker.tar.zst';assert not image.exists()
     with image.open('xb') as out,(package/'docker-save.log').open('x') as errors:

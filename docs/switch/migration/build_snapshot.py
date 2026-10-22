@@ -19,8 +19,10 @@ def main():
     data=json.loads(inventory.read_text());unresolved=[]
     for item in data['sensitive_candidates']:
         if item['reason']=='credential_filename':unresolved.append(item);continue
-        matches=[m for pattern in PATTERNS for m in re.finditer(pattern,(ROOT/item['path']).read_bytes())]
-        if not matches or not all(b'${' in m.group() for m in matches):unresolved.append(item)
+        matches=[(i,m) for i,pattern in enumerate(PATTERNS) for m in re.finditer(pattern,(ROOT/item['path']).read_bytes())]
+        placeholders=item['path'].endswith('/spirv-tools/src/.github/workflows/autoroll.yml') and matches and all(
+            i==1 and m.group().split(b'://',1)[1].split(b':',1)[1].startswith(b'$') for i,m in matches)
+        if not placeholders:unresolved.append(item)
     assert not unresolved,[(x['path'],x['reason']) for x in unresolved]
     assert not data['special_files'] and not data['symlinks']
     (package/'privacy-scope.json').write_text(json.dumps({'automatic_candidates':data['sensitive_candidates'],'all_candidates_classified':'shell variable placeholders, not literal credentials','host_credentials_included':False,'scope':'Only project workspace, never ~/.hermes, SSH keys, Docker login config or home config. Not a complete secrets audit of Git history/binary logs. Treat all output as private.'},indent=2)+'\n')

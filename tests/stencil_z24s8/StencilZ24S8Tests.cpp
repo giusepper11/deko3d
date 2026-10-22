@@ -217,12 +217,17 @@ TEST(InvalidPlanLeavesPreviousPlanUnchanged) {
     CHECK(f.plan.width==previous.width && f.plan.x==previous.x);
     CHECK(f.plan.requiredSourceBytes==previous.requiredSourceBytes);
 }
-int main() {
-    unsigned failed=0;
+#include "probe/ProbeTests.h"
+#include "probe/PublicationTests.h"
+int main(int argc, char** argv) {
+    const bool probeOnly=argc==2 && std::string(argv[1])=="--probe-only";
+    unsigned failed=0,executed=0;
     for(auto& test:tests()) {
+        if (probeOnly && std::string(test.first).rfind("Probe",0)!=0) continue;
+        ++executed;
         try { test.second(); std::printf("PASS %s\n",test.first); }
         catch(const std::exception& e) { ++failed; std::printf("FAIL %s: %s\n",test.first,e.what()); }
     }
-    std::printf("%zu tests, %u failures; host/model only, no GPU execution\n",tests().size(),failed);
+    std::printf("%u tests, %u failures; host/model only, no GPU execution\n",executed,failed);
     return failed ? 1 : 0;
 }
